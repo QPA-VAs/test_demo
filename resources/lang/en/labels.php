@@ -207,7 +207,7 @@
 'client_profile' => 'Client profile',
 'update_client_profile' => 'Update client profile',
 'todos_not_found' => 'Todos not found!',
-'view_more' => 'View more',
+'view_more' => 'View More',
 'project_statistics' => 'Project statistics',
 'task_statistics' => 'Task statistics',
 'status_wise_projects' => 'Status wise projects',
