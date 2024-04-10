@@ -46,31 +46,6 @@ $pendingLeaveRequestsCount = $query->count();
         </a>
     </div>
     <div class="menu-inner-shadow"></div>
-    <div class="btn-group dropend px-2">
-        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <?= $current_workspace_title ?>
-        </button>
-        <ul class="dropdown-menu">
-            @foreach ($workspaces as $workspace)
-            <?php $checked = $workspace->id == session()->get('workspace_id') ? "<i class='menu-icon tf-icons bx bx-check-square text-primary'></i>" : "<i class='menu-icon tf-icons bx bx-square text-solid'></i>" ?>
-            <li><a class="dropdown-item" href="/workspaces/switch/{{$workspace->id}}"><?= $checked ?>{{$workspace->title}}</a></li>
-            @endforeach
-            <li>
-                <hr class="dropdown-divider" />
-            </li>
-            @if ($user->can('manage_workspaces'))
-            <li><a class="dropdown-item" href="/workspaces"><i class='menu-icon tf-icons bx bx-bar-chart-alt-2 text-success'></i><?= get_label('manage_workspaces', 'Manage workspaces') ?> <?= $total_workspaces > 5 ? '<span class="badge badge-center bg-primary"> + ' . ($total_workspaces - 5) . '</span>' : "" ?></a></li>
-            @if ($user->can('create_workspaces'))
-            <li><a class="dropdown-item" href="/workspaces/create"><i class='menu-icon tf-icons bx bx-plus text-warning'></i><?= get_label('create_workspace', 'Create workspace') ?></a></span></li>
-            <!-- <li><span data-bs-toggle="modal" data-bs-target="#create_workspace_modal"><a class="dropdown-item" href="javascript:void(0);"><i class='menu-icon tf-icons bx bx-plus text-warning'></i><?= get_label('create_workspace', 'Create workspace') ?></a></span></li> -->
-            @endif
-            @if ($user->can('create_workspaces'))
-            <li><a class="dropdown-item" href="/workspaces/edit/<?= session()->get('workspace_id') ?>"><i class='menu-icon tf-icons bx bx-edit text-info'></i><?= get_label('edit_workspace', 'Edit workspace') ?></a></li>
-            @endif
-            @endif
-            <li><a class="dropdown-item" href="#" id="remove-participant"><i class='menu-icon tf-icons bx bx-exit text-danger'></i><?= get_label('remove_me_from_workspace', 'Remove me from workspace') ?></a></li>
-        </ul>
-    </div>
     <ul class="menu-inner py-1">
         <hr class="dropdown-divider" />
         <!-- Dashboard -->
