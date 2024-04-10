@@ -253,64 +253,6 @@
             </div>
         </div>
     </div>
-    <div class="nav-align-top my-4">
-        <ul class="nav nav-tabs" role="tablist">
-            <li class="nav-item">
-                <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-top-upcoming-birthdays" aria-controls="navs-top-upcoming-birthdays" aria-selected="true">
-                    <i class="menu-icon tf-icons bx bx-cake text-success"></i><?= get_label('upcoming_birthdays', 'Upcoming birthdays') ?>
-                </button>
-            </li>
-            <li class="nav-item">
-                <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-top-upcoming-work-anniversaries" aria-controls="navs-top-upcoming-work-anniversaries" aria-selected="false">
-                    <i class="menu-icon tf-icons bx bx-star text-primary"></i><?= get_label('upcoming_work_anniversaries', 'Upcoming work anniversaries') ?>
-                </button>
-            </li>
-            <li class="nav-item">
-                <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-top-members-on-leave" aria-controls="navs-top-members-on-leave" aria-selected="false">
-                    <i class="menu-icon tf-icons bx bx-home text-danger"></i><?= get_label('members_on_leave', 'Members on leave') ?>
-                </button>
-            </li>
-        </ul>
-        <div class="tab-content">
-            <div class="tab-pane fade active show" id="navs-top-upcoming-birthdays" role="tabpanel">
-                @if (!$auth_user->dob)
-                <div class="alert alert-primary alert-dismissible" role="alert"><?= get_label('dob_not_set_alert', 'You DOB is not set') ?>, <a href="/users/edit/{{$auth_user->id}}" target="_blank"><?= get_label('click_here_to_set_it_now', 'Click here to set it now') ?></a>.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
-                @endif
-
-                <div class="table-responsive text-nowrap">
-                    <div class="d-flex justify-content-between">
-                        <h4 class="fw-bold"><?= get_label('upcoming_birthdays', 'Upcoming birthdays') ?></h4>
-                    </div>
-
-                    <x-upcoming-birthdays-card :users="$users" />
-                </div>
-
-            </div>
-            <div class="tab-pane fade" id="navs-top-upcoming-work-anniversaries" role="tabpanel">
-                @if (!$auth_user->doj)
-                <div class="alert alert-primary alert-dismissible" role="alert"><?= get_label('doj_not_set_alert', 'You DOJ is not set') ?>, <a href="/users/edit/{{$auth_user->id}}" target="_blank"><?= get_label('click_here_to_set_it_now', 'Click here to set it now') ?></a>.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
-                @endif
-
-                <div class="table-responsive text-nowrap">
-                    <div class="d-flex justify-content-between">
-                        <h4 class="fw-bold"><?= get_label('upcoming_work_anniversaries', 'Upcoming work anniversaries') ?></h4>
-                    </div>
-                    <x-upcoming-work-anniversaries-card :users="$users" />
-                </div>
-
-            </div>
-            <div class="tab-pane fade" id="navs-top-members-on-leave" role="tabpanel">
-
-                <div class="table-responsive text-nowrap">
-                    <div class="d-flex justify-content-between">
-                        <h4 class="fw-bold"><?= get_label('members_on_leave', 'Members on leave') ?></h4>
-                    </div>
-                    <x-members-on-leave-card :users="$users" />
-                </div>
-
-            </div>
-        </div>
-    </div>
 
     @if ($auth_user->can('manage_projects') || $auth_user->can('manage_tasks'))
     <div class="nav-align-top my-4">
