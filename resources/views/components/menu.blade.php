@@ -46,6 +46,12 @@ $pendingLeaveRequestsCount = $query->count();
         </a>
     </div>
     <div class="menu-inner-shadow"></div>
+    <div class="btn-group dropend px-2">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <?= $current_workspace_title ?>
+        </button>
+        
+    </div>
     <ul class="menu-inner py-1">
         <hr class="dropdown-divider" />
         <!-- Dashboard -->
@@ -100,41 +106,7 @@ $pendingLeaveRequestsCount = $query->count();
         </li>
         @endif
 
-        @if ($user->can('manage_workspaces'))
-        <li class="menu-item {{ Request::is('workspaces') || Request::is('workspaces/*') ? 'active' : '' }}">
-            <a href="/workspaces" class="menu-link">
-                <i class='menu-icon tf-icons bx bx-check-square text-danger'></i>
-                <div><?= get_label('workspaces', 'Workspaces') ?></div>
-            </a>
-        </li>
-        @endif
-
-
-        @if (Auth::guard('web')->check())
-        <li class="menu-item {{ Request::is('chat') || Request::is('chat/*') ? 'active' : '' }}">
-            <a href="/chat" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-chat text-warning"></i>
-                <div><?= get_label('chat', 'Chat') ?> <span class="flex-shrink-0 badge badge-center bg-danger w-px-20 h-px-20">{{$unread}}</span></div>
-
-            </a>
-        </li>
-        @endif
-
-
-        <li class="menu-item {{ Request::is('todos') || Request::is('todos/*') ? 'active' : '' }}">
-            <a href="/todos" class="menu-link">
-                <i class='menu-icon tf-icons bx bx-list-check text-dark'></i>
-                <div><?= get_label('todos', 'Todos') ?> <span class="flex-shrink-0 badge badge-center bg-danger w-px-20 h-px-20">{{$pending_todos_count}}</span></div>
-            </a>
-        </li>
-        @if ($user->can('manage_meetings'))
-        <li class="menu-item {{ Request::is('meetings') || Request::is('meetings/*') ? 'active' : '' }}">
-            <a href="/meetings" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-shape-polygon text-success"></i>
-                <div><?= get_label('meetings', 'Meetings') ?> <span class="flex-shrink-0 badge badge-center bg-success w-px-20 h-px-20">{{$ongoing_meetings_count}}</span></div>
-            </a>
-        </li>
-        @endif
+        
         @if ($user->can('manage_users'))
         <li class="menu-item {{ Request::is('users') || Request::is('users/*') ? 'active' : '' }}">
             <a href="/users" class="menu-link">
@@ -151,114 +123,8 @@ $pendingLeaveRequestsCount = $query->count();
             </a>
         </li>
         @endif
-
-        @if ($user->can('manage_contracts'))
-
-        <li class="menu-item {{ Request::is('contracts') || Request::is('contracts/*') ? 'active open' : '' }}">
-            <a href="javascript:void(0)" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-news text-success"></i>
-                <?= get_label('contracts', 'Contracts') ?>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item {{ Request::is('contracts') ? 'active' : '' }}">
-                    <a href="/contracts" class="menu-link">
-                        <div><?= get_label('manage_contracts', 'Manage contracts') ?></div>
-                    </a>
-                </li>
-
-                <li class="menu-item {{ Request::is('contracts/contract-types') ? 'active' : '' }}">
-                    <a href="/contracts/contract-types" class="menu-link">
-                        <div><?= get_label('contract_types', 'Contract types') ?></div>
-                    </a>
-                </li>
-            </ul>
-        </li>
-
-        @endif
-
-        @if ($user->can('manage_payslips'))
-        <li class="menu-item {{ Request::is('payslips') || Request::is('payslips/*') || Request::is('allowances') || Request::is('deductions') ? 'active open' : '' }}">
-            <a href="javascript:void(0)" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-box text-warning"></i>
-                <?= get_label('payslips', 'Payslips') ?>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item {{ Request::is('payslips') || Request::is('payslips/*') ? 'active' : '' }}">
-                    <a href="/payslips" class="menu-link">
-                        <div><?= get_label('manage_payslips', 'Manage payslips') ?></div>
-                    </a>
-                </li>
-
-                <li class="menu-item {{ Request::is('allowances') ? 'active' : '' }}">
-                    <a href="/allowances" class="menu-link">
-                        <div><?= get_label('allowances', 'Allowances') ?></div>
-                    </a>
-                </li>
-
-                <li class="menu-item {{ Request::is('deductions') ? 'active' : '' }}">
-                    <a href="/deductions" class="menu-link">
-                        <div><?= get_label('deductions', 'Deductions') ?></div>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        @endif
-
-
-        @if ($user->can('manage_estimates_invoices') || $user->can('manage_expenses'))
-        <li class="menu-item {{ Request::is('estimates-invoices') || Request::is('estimates-invoices/*') || Request::is('taxes') || Request::is('payment-methods') || Request::is('payments') || Request::is('units') || Request::is('items') || Request::is('expenses') || Request::is('expenses/*') ? 'active open' : '' }}">
-            <a href="javascript:void(0)" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-box text-success"></i>
-                <?= get_label('finance', 'Finance') ?>
-            </a>
-            <ul class="menu-sub">
-                @if ($user->can('manage_expenses'))
-                <li class="menu-item {{ Request::is('expenses') || Request::is('expenses/*') ? 'active' : '' }}">
-                    <a href="/expenses" class="menu-link">
-                        <div><?= get_label('expenses', 'Expenses') ?></div>
-                    </a>
-                </li>
-                @endif
-
-                @if ($user->can('manage_estimates_invoices'))
-                <li class="menu-item {{ Request::is('estimates-invoices') || Request::is('estimates-invoices/*') ? 'active' : '' }}">
-                    <a href="/estimates-invoices" class="menu-link">
-                        <div><?= get_label('etimates_invoices', 'Estimates/Invoices') ?></div>
-                    </a>
-                </li>
-
-                <li class="menu-item {{ Request::is('payments') ? 'active' : '' }}">
-                    <a href="/payments" class="menu-link">
-                        <div><?= get_label('payments', 'Payments') ?></div>
-                    </a>
-                </li>
-
-                <li class="menu-item {{ Request::is('payment-methods') ? 'active' : '' }}">
-                    <a href="/payment-methods" class="menu-link">
-                        <div><?= get_label('payment_methods', 'Payment methods') ?></div>
-                    </a>
-                </li>
-
-                <li class="menu-item {{ Request::is('taxes') ? 'active' : '' }}">
-                    <a href="/taxes" class="menu-link">
-                        <div><?= get_label('taxes', 'Taxes') ?></div>
-                    </a>
-                </li>
-                <li class="menu-item {{ Request::is('units') ? 'active' : '' }}">
-                    <a href="/units" class="menu-link">
-                        <div><?= get_label('units', 'Units') ?></div>
-                    </a>
-                </li>
-                <li class="menu-item {{ Request::is('items') ? 'active' : '' }}">
-                    <a href="/items" class="menu-link">
-                        <div><?= get_label('items', 'Items') ?></div>
-                    </a>
-                </li>
-                @endif
-            </ul>
-        </li>
-        @endif
-
+        
+        
 
         <li class="menu-item {{ Request::is('notes') || Request::is('notes/*') ? 'active' : '' }}">
             <a href="/notes" class="menu-link">
@@ -268,15 +134,7 @@ $pendingLeaveRequestsCount = $query->count();
         </li>
 
 
-        @if (Auth::guard('web')->check())
-        <li class="menu-item {{ Request::is('leave-requests') || Request::is('leave-requests/*') ? 'active' : '' }}">
-            <a href="/leave-requests" class="menu-link">
-                <i class='menu-icon tf-icons bx bx-right-arrow-alt text-danger'></i>
-                <div><?= get_label('leave_requests', 'Leave requests') ?> <span class="flex-shrink-0 badge badge-center bg-danger w-px-20 h-px-20">{{$pendingLeaveRequestsCount}}</span></div>
-            </a>
-        </li>
-        @endif
-
+        
         @if ($user->can('manage_activity_log'))
         <li class="menu-item {{ Request::is('activity-log') || Request::is('activity-log/*') ? 'active' : '' }}">
             <a href="/activity-log" class="menu-link">
