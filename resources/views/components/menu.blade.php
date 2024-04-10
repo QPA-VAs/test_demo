@@ -46,12 +46,6 @@ $pendingLeaveRequestsCount = $query->count();
         </a>
     </div>
     <div class="menu-inner-shadow"></div>
-    <div class="btn-group dropend px-2">
-        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <?= $current_workspace_title ?>
-        </button>
-        
-    </div>
     <ul class="menu-inner py-1">
         <hr class="dropdown-divider" />
         <!-- Dashboard -->
@@ -106,7 +100,7 @@ $pendingLeaveRequestsCount = $query->count();
         </li>
         @endif
 
-        
+
         @if ($user->can('manage_users'))
         <li class="menu-item {{ Request::is('users') || Request::is('users/*') ? 'active' : '' }}">
             <a href="/users" class="menu-link">
@@ -123,8 +117,8 @@ $pendingLeaveRequestsCount = $query->count();
             </a>
         </li>
         @endif
-        
-        
+
+
 
         <li class="menu-item {{ Request::is('notes') || Request::is('notes/*') ? 'active' : '' }}">
             <a href="/notes" class="menu-link">
@@ -134,7 +128,7 @@ $pendingLeaveRequestsCount = $query->count();
         </li>
 
 
-        
+
         @if ($user->can('manage_activity_log'))
         <li class="menu-item {{ Request::is('activity-log') || Request::is('activity-log/*') ? 'active' : '' }}">
             <a href="/activity-log" class="menu-link">
