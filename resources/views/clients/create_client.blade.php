@@ -70,27 +70,6 @@
                     </div>
 
                     <div class="mb-3 col-md-6">
-                        <label for="password" class="form-label"><?= get_label('password', 'Password') ?> <span class="asterisk">*</span></label>
-                        <input class="form-control" type="password" id="password" name="password" placeholder="<?= get_label('please_enter_password', 'Please enter password') ?>">
-
-                        @error('password')
-                        <p class="text-danger text-xs mt-1">{{ $message }}</p>
-                        @enderror
-
-
-                    </div>
-                    <div class="mb-3 col-md-6">
-                        <label for="password_confirmation" class="form-label"><?= get_label('confirm_password', 'Confirm password') ?> <span class="asterisk">*</span></label>
-                        <input class="form-control" type="password" id="password_confirmation" name="password_confirmation" placeholder="<?= get_label('please_re_enter_password', 'Please re enter password') ?>">
-
-                        @error('password_confirmation')
-                        <p class="text-danger text-xs mt-1">{{ $message }}</p>
-                        @enderror
-
-
-                    </div>
-
-                    <div class="mb-3 col-md-6">
                         <label for="dob" class="form-label"><?= get_label('date_of_birth', 'Date of birth') ?> <span class="asterisk">*</span></label>
                         <input class="form-control" type="text" id="dob" name="dob" placeholder="<?= get_label('please_select', 'Please select') ?>" autocomplete="off">
 

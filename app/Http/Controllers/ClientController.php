@@ -57,8 +57,6 @@ class ClientController extends Controller
             'company' => 'required',
             'email' => ['required', 'email', 'unique:clients,email'],
             'phone' => 'required',
-            'password' => 'required|confirmed|min:6',
-            'password_confirmation' => 'required',
             'address' => 'required',
             'city' => 'required',
             'state' => 'required',
@@ -68,7 +66,6 @@ class ClientController extends Controller
             'doj' => 'required'
         ]);
 
-        $formFields['password'] = bcrypt($formFields['password']);
 
         if ($request->hasFile('profile')) {
             $formFields['photo'] = $request->file('profile')->store('photos', 'public');
