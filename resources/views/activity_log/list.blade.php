@@ -72,7 +72,7 @@
                         <select class="form-select" id="type_filter" aria-label="Default select example">
                             <option value=""><?= get_label('select_type', 'Select type') ?></option>
                             @foreach ($types as $type)
-                            <option value="{{$type}}">{{ Str::title(str_replace('_', ' ', $type)) }}</option>
+                            <option value="task">{{ Str::title(str_replace('_', ' ', $type)) }}</option>
                             @endforeach
                         </select>
                     </div>

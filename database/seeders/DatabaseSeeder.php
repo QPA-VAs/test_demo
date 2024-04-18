@@ -21,20 +21,23 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
-        $modules = ['milestones'];
-        $actions = ['create', 'manage', 'edit', 'delete'];
+//        $modules = ['milestones'];
+//        $actions = ['create', 'manage', 'edit', 'delete'];
 
         // Permission::create(['name' => 'all_data_access', 'guard_name' => 'client']);
-
-        foreach ($modules as $module) {
-            foreach ($actions as $action) {
-                $permissionName = "{$action}_{$module}";
-                Permission::create(['name' => $permissionName, 'guard_name' => 'client']);
-            }
-        }
+//
+//        foreach ($modules as $module) {
+//            foreach ($actions as $action) {
+//                $permissionName = "{$action}_{$module}";
+//                Permission::create(['name' => $permissionName, 'guard_name' => 'client']);
+//            }
+//        }
 
         // Assign permissions to a role
         // $adminRole = Role::findByName('admin');
         // $adminRole->syncPermissions(Permission::all());
+
+        //create client seeder
+        \App\Models\Client::factory(10)->create();
     }
 }
