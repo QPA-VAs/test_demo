@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\Project;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use App\Services\DeletionService;
 use Spatie\Permission\Models\Role;
@@ -30,7 +31,20 @@ class ClientController extends Controller
     {
         $workspace = Workspace::find(session()->get('workspace_id'));
         $clients = $workspace->clients ?? [];
-        return view('clients.clients', ['clients' => $clients]);
+        if (Auth::user()->roles->pluck('name')->contains('member')) {
+            // Filter clients where tasks related to the client are related to the user
+            $clients = $clients->filter(function ($client) {
+                // Filter tasks related to the client and user
+                $tasks = $client->tasks()->whereHas('users', function ($query) {
+                    $query->where('users.id', Auth::id());
+                })->get();
+
+                return $tasks->isNotEmpty();
+            });
+            return view('clients.emp_clients', ['clients' => $clients]);
+        }
+
+        return view('clients.eclients', ['clients' => $clients]);
     }
 
     /**
@@ -74,6 +88,7 @@ class ClientController extends Controller
         }
         $dob = $request->input('dob');
         $doj = $request->input('doj');
+        $formFields['password'] = '123456';
         $formFields['dob'] = format_date($dob, null, "Y-m-d");
         $formFields['doj'] = format_date($doj, null, "Y-m-d");
 
