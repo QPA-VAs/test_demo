@@ -15,6 +15,35 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Artisan;
 
+function get_total_time_spent_today()
+{
+    // Assuming you have a Task model and a User model and there's a relationship between them
+
+    // Get the current authenticated user
+    $user = auth()->user();
+
+    // Get the tasks created by the current user today
+    $tasks = $user->tasks()->whereDate('created_at', today())->get();
+
+    // Calculate the total time spent
+    $total_time_spent = 0;
+    foreach ($tasks as $task) {
+        // Convert time_spent to minutes
+        $time_spent_parts = explode(':', $task->time_spent);
+        $hours_in_minutes = intval($time_spent_parts[0]) * 60;
+        $minutes = intval($time_spent_parts[1]);
+        $total_time_spent += $hours_in_minutes + $minutes;
+    }
+
+
+    // Convert total minutes to hours:minutes format
+    $hours = floor($total_time_spent / 60);
+    $minutes = $total_time_spent % 60;
+    $formatted_time_spent = sprintf("%02d:%02d", $hours, $minutes);
+
+    return $formatted_time_spent;
+}
+
 if (!function_exists('get_timezone_array')) {
     // 1.Get Time Zone
     function get_timezone_array()
@@ -128,14 +157,14 @@ if (!function_exists('create_label')) {
             $title = $variable;
         }
         return "
-            
+
             <div class='mb-3 col-md-6'>
                         <label class='form-label' for='end_date'>$title</label>
                         <div class='input-group input-group-merge'>
                             <input type='text' name='$variable' class='form-control' value='" . get_label($variable, $title, $locale) . "'>
                         </div>
                     </div>
-            
+
             ";
     }
 }

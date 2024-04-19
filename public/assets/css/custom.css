@@ -218,6 +218,18 @@
     }
 }
 
+#hours_spent{
+    height: 2em;
+    width: 25em;
+    align-items: center;
+}
+@media (max-width: 769px) {
+    #hours_spent {
+        height: 2em;
+        width: 10em;
+        align-items: center;
+    }
+}
 
 @media (min-width: 769px) {
     .demo-mode-icon-only i {

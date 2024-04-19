@@ -36,7 +36,7 @@ $default_language = getAuthenticatedUser()->lang;
                         <i class='bx bx-error-alt text-danger'></i>
                     </span></li>
                 @endif
-                <li class="nav-item mx-1"><span class="badge bg-success">v{{get_current_version()}}</span></li>
+                <li class="nav-item mx-1"><span id="hours_spent" class="badge bg-success">{{get_total_time_spent_today()}} Hrs</span></li>
                 <li class="nav-item navbar-dropdown dropdown-user dropdown ml-1">
                     <div class="btn-group dropend px-1">
                         <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -114,7 +114,7 @@ $default_language = getAuthenticatedUser()->lang;
                             <div class="dropdown-divider"></div>
                         </li>
                         <li>
-                            <form action="/logout" method="POST" class="dropdown-item">
+                            <form id="logoutForm" action="/logout" method="POST" class="dropdown-item">
                                 @csrf
                                 <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bx bx-log-out-circle"></i> <?= get_label('logout', 'Logout') ?></button>
 
@@ -130,5 +130,24 @@ $default_language = getAuthenticatedUser()->lang;
 </div>
 @else
 @endauth
-
+<script>
+    document.getElementById('logoutForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        debugger
+        console.log('logout');
+        // Send message to service worker to clear cache
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({ action: 'clearCache' });
+        }
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                registrations.forEach(registration => {
+                    registration.unregister();
+                });
+            });
+        }
+        // Submit the form
+        this.submit();
+    });
+</script>
 <!-- / Navbar -->
