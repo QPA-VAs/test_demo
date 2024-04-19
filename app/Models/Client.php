@@ -19,21 +19,37 @@ class Client extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'first_name',
         'last_name',
+        'business_name',
         'email',
-        'password',
-        'phone',
-        'company',
-        'address',
+        'preferred_correspondence_email',
+        'preferred_contact_method',
+        'business_address',
+        'address_line_1',
+        'address_line_2',
+        'state_province_region',
         'city',
         'state',
+        'company',
+        'phone',
+        'password',
+        'address',
         'country',
         'zip',
         'photo',
+        'postal_zip_code',
+        'website',
+        'prefer_company',
         'dob',
         'doj',
         'status',
-        'email_verified_at'
+        'email_verified_at',
+        'applications_used',
+        'maximum_budget',
+        'agree_terms',
+        'agree_update_terms',
+        'signature'
     ];
+// i used bring it at the showed part right now or where make i do that for 
 
     /**
      * The attributes that should be hidden for serialization.
@@ -77,7 +93,8 @@ class Client extends Authenticatable implements MustVerifyEmail
 
     public function todos()
     {
-        return $this->morphMany(Todo::class, 'creator')->where('workspace_id', session()->get('workspace_id'));;
+        return $this->morphMany(Todo::class, 'creator')->where('workspace_id', session()->get('workspace_id'));
+        ;
     }
 
     public function status_projects($status_id)
