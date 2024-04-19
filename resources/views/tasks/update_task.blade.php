@@ -102,9 +102,10 @@
                         @enderror
                     </div>
                     <div class="mb-3 col-md-6">
-                        <label class="form-label" for="due_date"><?= get_label('ends_at', 'Ends at') ?> <span class="asterisk">*</span></label>
-                        <input type="text" id="end_date" name="due_date" class="form-control" value="{{ format_date($task->due_date)}}">
-                        @error('due_date')
+                        <label class="form-label" for="time_spent"><?= get_label('time_spent', 'Time Spent') ?> <span class="asterisk">*</span></label>
+                        <input type="number" id="time_spent" name="time_spent" class="form-control" value="{{ $task->time_spent}}">
+                        <datalist id="timeOptions" class="scrollable-list"></datalist>
+                        @error('time_spent')
                         <p class="text-danger text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>

@@ -37,6 +37,9 @@ class HomeController extends Controller
         $todos = $this->user->todos()->orderBy('id', 'desc')->paginate(5);
         $total_todos = $this->user->todos;
         $meetings = isAdminOrHasAllDataAccess() ? $this->workspace->meetings ?? [] : $this->user->meetings ?? [];
+        if ($this->user->roles->pluck('name')->contains('member')){
+            return view('clients.emp_clients', ['clients' => $clients]);
+        }
         return view('dashboard', ['users' => $users, 'clients' => $clients, 'projects' => $projects, 'tasks' => $tasks, 'todos' => $todos, 'total_todos' => $total_todos, 'meetings' => $meetings, 'auth_user' => $this->user]);
     }
 
