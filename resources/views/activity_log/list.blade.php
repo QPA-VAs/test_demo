@@ -28,12 +28,6 @@
             <div class="table-responsive text-nowrap">
 
                 <div class="row mt-4 mx-2">
-                    <div class="mb-3 col-md-3">
-                        <div class="input-group input-group-merge">
-                            <input type="text" id="activity_log_between_date" class="form-control" placeholder="<?= get_label('date_between', 'Date between') ?>" autocomplete="off">
-                        </div>
-                    </div>
-
                     @if(isAdminOrHasAllDataAccess())
                     <div class="col-md-3">
                         <select class="form-select" id="user_filter" aria-label="Default select example">

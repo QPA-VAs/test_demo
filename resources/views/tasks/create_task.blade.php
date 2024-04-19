@@ -79,8 +79,8 @@
                         @enderror
                     </div>
                     <div class="mb-3 col-md-6">
-                        <label class="form-label" for="due_date"><?= get_label('ends_at', 'Ends at') ?> <span class="asterisk">*</span></label>
-                        <input type="text" id="end_date" name="due_date" class="form-control" value="">
+                        <label class="form-label" for="due_date"><?= get_label('time_spent', 'Time spent') ?> <span class="asterisk">*</span></label>
+                        <input type="number" id="time_spent" name="time_spent" class="form-control" value="">
                         @error('due_date')
                         <p class="text-danger text-xs mt-1">{{ $message }}</p>
                         @enderror

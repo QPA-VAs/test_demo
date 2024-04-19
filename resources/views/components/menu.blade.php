@@ -86,7 +86,7 @@ $pendingLeaveRequestsCount = $query->count();
         <li class="menu-item {{ Request::is('tasks') || Request::is('tasks/*') ? 'active' : '' }}">
             <a href="/tasks" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-task text-primary"></i>
-                <div><?= get_label('tasks', 'Tasks') ?></div>
+                <div><?= get_label('tasklist', 'Tasklist') ?></div>
             </a>
         </li>
         @endif
@@ -162,21 +162,6 @@ $pendingLeaveRequestsCount = $query->count();
                 <li class="menu-item {{ Request::is('settings/email') ? 'active' : '' }}">
                     <a href="/settings/email" class="menu-link">
                         <div><?= get_label('email', 'Email') ?></div>
-                    </a>
-                </li>
-                <li class="menu-item {{ Request::is('settings/pusher') ? 'active' : '' }}">
-                    <a href="/settings/pusher" class="menu-link">
-                        <div><?= get_label('pusher', 'Pusher') ?></div>
-                    </a>
-                </li>
-                <li class="menu-item {{ Request::is('settings/media-storage') ? 'active' : '' }}">
-                    <a href="/settings/media-storage" class="menu-link">
-                        <div><?= get_label('media_storage', 'Media storage') ?></div>
-                    </a>
-                </li>
-                <li class="menu-item {{ Request::is('settings/system-updater') ? 'active' : '' }}">
-                    <a href="/settings/system-updater" class="menu-link">
-                        <div><?= get_label('system_updater', 'System updater') ?></div>
                     </a>
                 </li>
 
