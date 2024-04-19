@@ -21,7 +21,7 @@
 'create_status' => 'Create status',
 'budget' => 'Budget',
 'starts_at' => 'Starts at',
-'ends_at' => 'Ends at',
+'time_spent' => 'Time Spent',
 'description' => 'Description',
 'select_users' => 'Select users',
 'select_clients' => 'Select clients',

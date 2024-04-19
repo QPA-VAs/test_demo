@@ -1,183 +1,253 @@
 @extends('layout')
 
 @section('title')
-<?= get_label('client_profile', 'Client profile') ?>
+    <?= get_label('client_profile', 'Client profile') ?>
 @endsection
 
 @section('content')
-<div class="container-fluid">
-    <div class="d-flex justify-content-between m-4">
-        <div>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb breadcrumb-style1">
-                    <li class="breadcrumb-item">
-                        <a href="{{url('/home')}}"><?= get_label('home', 'Home') ?></a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a href="{{url('/clients')}}"><?= get_label('clients', 'Clients') ?></a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <?= $client->first_name . ' ' . $client->last_name; ?>
-                    </li>
-                </ol>
-            </nav>
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between m-4">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-style1">
+                        <li class="breadcrumb-item">
+                            <a href="{{ url('/home') }}"><?= get_label('home', 'Home') ?></a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{{ url('/clients') }}"><?= get_label('clients', 'Clients') ?></a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <?= $client->first_name . ' ' . $client->last_name ?>
+                        </li>
+                    </ol>
+                </nav>
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card mb-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
 
-                <!-- Account -->
-                <div class="card-body">
-                    <div class="d-flex align-items-start align-items-sm-center gap-4">
-                        <img src="{{$client->photo ? asset('storage/' . $client->photo) : asset('/profiles/1.png')}}" alt="client-avatar" class="d-block rounded" height="100" width="100" id="uploadedAvatar" />
-                        <h4 class="card-header fw-bold">{{ $client->first_name }} {{$client->last_name}}</h4> <?= $client->status == 1 ? '<span class="badge bg-success">' . get_label('active', 'Active') . '</span>' : '<span class="badge bg-danger">' . get_label('deactive', 'Deactive') . '</span>' ?>
+                    <!-- Account -->
+                    <div class="card-body">
+                        <div class="d-flex align-items-start align-items-sm-center gap-4">
+                            <img src="{{ $client->photo ? asset('storage/' . $client->photo) : asset('/profiles/1.png') }}"
+                                alt="client-avatar" class="d-block rounded" height="100" width="100"
+                                id="uploadedAvatar" />
+                            <h4 class="card-header fw-bold">{{ $client->first_name }} {{ $client->last_name }}</h4>
+                            <?= $client->status == 1 ? '<span class="badge bg-success">' . get_label('active', 'Active') . '</span>' : '<span class="badge bg-danger">' . get_label('deactive', 'Deactive') . '</span>' ?>
+                        </div>
                     </div>
-                </div>
-                <hr class="my-0" />
-                <div class="card-body">
-                    <div class="row">
+                    <hr class="my-0" />
+                    <div class="card-body">
+                        <div class="row">
 
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label" for="phone"><?= get_label('phone_number', 'Phone number') ?></label>
-                            <div class="input-group input-group-merge">
-                                <input type="text" id="phone" name="phone" class="form-control" placeholder="" value="{{$client->phone}}" readonly />
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label"
+                                    for="phone"><?= get_label('phone_number', 'Phone number') ?></label>
+                                <div class="input-group input-group-merge">
+                                    <input type="text" id="phone" name="phone" class="form-control" placeholder=""
+                                        value="{{ $client->phone }}" readonly />
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label" for="email"><?= get_label('email', 'E-mail') ?></label>
-                            <div class="input-group input-group-merge">
-                                <input class="form-control" type="text" id="exampleFormControlReadOnlyInput1" placeholder="" value="{{$client->email}}" readonly="">
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label" for="email"><?= get_label('email', 'E-mail') ?></label>
+                                <div class="input-group input-group-merge">
+                                    <input class="form-control" type="text" id="exampleFormControlReadOnlyInput1"
+                                        placeholder="" value="{{ $client->email }}" readonly="">
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label" for="address"><?= get_label('address', 'Address') ?></label>
-                            <div class="input-group input-group-merge">
-                                <input class="form-control" type="text" id="address" placeholder="" value="{{$client->address}}" readonly="">
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label"
+                                    for="business_name"><?= get_label('business_name', 'Business Name') ?></label>
+                                <div class="input-group input-group-merge">
+                                    <input class="form-control" type="text" id="exampleFormControlReadOnlyInput1"
+                                        placeholder="" value="{{ $client->business_name }}" readonly="">
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label" for="city"><?= get_label('city', 'City') ?></label>
-                            <div class="input-group input-group-merge">
-                                <input class="form-control" type="text" id="city" placeholder="" value="{{$client->city}}" readonly="">
+                            
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label" for="address"><?= get_label('address', 'Address') ?></label>
+                                <div class="input-group input-group-merge">
+                                    <input class="form-control" type="text" id="address" placeholder=""
+                                        value="{{ $client->address }}" readonly="">
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label" for="state"><?= get_label('state', 'State') ?></label>
-                            <div class="input-group input-group-merge">
-                                <input class="form-control" type="text" id="state" placeholder="" value="{{$client->state}}" readonly="">
+                            <div class="mb-3 col-md-4">
+                                <label class="form-label" for="city"><?= get_label('city', 'City') ?></label>
+                                <div class="input-group input-group-merge">
+                                    <input class="form-control" type="text" id="city" placeholder=""
+                                        value="{{ $client->city }}" readonly="">
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label" for="country"><?= get_label('country', 'Country') ?></label>
-                            <div class="input-group input-group-merge">
-                                <input class="form-control" type="text" id="country" placeholder="" value="{{$client->country}}" readonly="">
+                            <div class="mb-3 col-md-4">
+                                <label class="form-label" for="state"><?= get_label('state', 'State') ?></label>
+                                <div class="input-group input-group-merge">
+                                    <input class="form-control" type="text" id="state" placeholder=""
+                                        value="{{ $client->state }}" readonly="">
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="mb-3 col-md-4">
-                            <label class="form-label" for="zip"><?= get_label('zip_code', 'Zip code') ?></label>
-                            <div class="input-group input-group-merge">
-                                <input class="form-control" type="text" id="zip" placeholder="" value="{{$client->zip}}" readonly="">
+                            <div class="mb-3 col-md-4">
+                                <label class="form-label" for="country"><?= get_label('country', 'Country') ?></label>
+                                <div class="input-group input-group-merge">
+                                    <input class="form-control" type="text" id="country" placeholder=""
+                                        value="{{ $client->country }}" readonly="">
+                                </div>
                             </div>
-                        </div>
 
-
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label" for="dob"><?= get_label('dob', 'Date of birth') ?></label>
-                            <div class="input-group input-group-merge">
-                                <input class="form-control" type="text" id="dob" placeholder="" value="{{ format_date($client->dob)}}" readonly="">
+                            <div class="mb-3 col-md-4">
+                                <label class="form-label" for="zip"><?= get_label('zip_code', 'Zip code') ?></label>
+                                <div class="input-group input-group-merge">
+                                    <input class="form-control" type="text" id="zip" placeholder=""
+                                        value="{{ $client->zip }}" readonly="">
+                                </div>
                             </div>
-                        </div>
-                        <div class="mb-3 col-md-6">
-                            <label class="form-label" for="doj"><?= get_label('date_of_join', 'Date of joining') ?></label>
-                            <div class="input-group input-group-merge">
-                                <input class="form-control" type="text" id="doj" placeholder="" value="{{ format_date($client->doj)}}" readonly="">
+
+                            <div class="mb-3 col-md-4">
+                                <label class="form-label" for="business_address"><?= get_label('business_address', 'Business Address') ?></label>
+                                <div class="input-group input-group-merge">
+                                    <input class="form-control" type="text" id="business_address" placeholder=""
+                                        value="{{ $client->business_address }}" readonly="">
+                                </div>
                             </div>
+
+                            <div class="mb-3 col-md-4">
+                                <label class="form-label" for="website"><?= get_label('website', 'website') ?></label>
+                                <div class="input-group input-group-merge">
+                                    <input class="form-control" type="text" id="website" placeholder=""
+                                        value="{{ $client->website }}" readonly="">
+                                </div>
+                            </div>
+
+
+                            <div class="mb-3 col-md-4">
+                                <label class="form-label" for="dob"><?= get_label('dob', 'Date of birth') ?></label>
+                                <div class="input-group input-group-merge">
+                                    <input class="form-control" type="text" id="dob" placeholder=""
+                                        value="{{ format_date($client->dob) }}" readonly="">
+                                </div>
+                            </div>
+                            <div class="mb-3 col-md-4">
+                                <label class="form-label"
+                                    for="doj"><?= get_label('date_of_join', 'Date of joining') ?></label>
+                                <div class="input-group input-group-merge">
+                                    <input class="form-control" type="text" id="doj" placeholder=""
+                                        value="{{ format_date($client->doj) }}" readonly="">
+                                </div>
+                            </div>
+
+                            <div class="mb-3 col-md-4">
+                                <label class="form-label" for="signature"><?= get_label('signature', 'signature') ?></label>
+                                <div class="input-group input-group-merge">
+                                    <input class="form-control" type="text" id="signature" placeholder=""
+                                        value="{{ $client->signature }}" readonly="">
+                                </div>
+                            </div>
+
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label" for="maximum_budget"><?= get_label('maximum_budget', 'Maximum budget') ?></label>
+                                <div class="input-group input-group-merge">
+                                    <input class="form-control" type="text" id="maximum_budget" placeholder=""
+                                        value="{{ $client->maximum_budget }}" readonly="">
+                                </div>
+                            </div>
+
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label" for="prefer_company"><?= get_label('prefer_company', 'Prefer Companys') ?></label>
+                                <div class="input-group input-group-merge">
+                                    <input class="form-control" type="text" id="prefer_company" placeholder=""
+                                        value="{{ $client->prefer_company }}" readonly="">
+                                </div>
+                            </div>
+
+
                         </div>
-
-
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    @if ($auth_user->can('manage_projects') || $auth_user->can('manage_tasks'))
-    <div class="nav-align-top my-4">
-        <ul class="nav nav-tabs" role="tablist">
-            @if ($auth_user->can('manage_projects'))
-            <li class="nav-item">
-                <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-top-projects" aria-controls="navs-top-projects" aria-selected="true">
-                    <i class="menu-icon tf-icons bx bx-briefcase-alt-2 text-success"></i><?= get_label('projects', 'Projects') ?>
-                </button>
-            </li>
-            @endif
-            @if ($auth_user->can('manage_tasks'))
-            <li class="nav-item">
-                <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-top-tasks" aria-controls="navs-top-tasks" aria-selected="false">
-                    <i class="menu-icon tf-icons bx bx-task text-primary"></i><?= get_label('tasks', 'Tasks') ?>
-                </button>
-            </li>
-            @endif
-        </ul>
-        <div class="tab-content">
-            @if ($auth_user->can('manage_projects'))
-            <div class="tab-pane fade active show" id="navs-top-projects" role="tabpanel">
-                <div class="table-responsive text-nowrap">
+        @if ($auth_user->can('manage_projects') || $auth_user->can('manage_tasks'))
+            <div class="nav-align-top my-4">
+                <ul class="nav nav-tabs" role="tablist">
+                    @if ($auth_user->can('manage_projects'))
+                        <li class="nav-item">
+                            <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab"
+                                data-bs-target="#navs-top-projects" aria-controls="navs-top-projects"
+                                aria-selected="true">
+                                <i
+                                    class="menu-icon tf-icons bx bx-briefcase-alt-2 text-success"></i><?= get_label('projects', 'Projects') ?>
+                            </button>
+                        </li>
+                    @endif
+                    @if ($auth_user->can('manage_tasks'))
+                        <li class="nav-item">
+                            <button type="button" class="nav-link" role="tab" data-bs-toggle="tab"
+                                data-bs-target="#navs-top-tasks" aria-controls="navs-top-tasks" aria-selected="false">
+                                <i
+                                    class="menu-icon tf-icons bx bx-task text-primary"></i><?= get_label('tasks', 'Tasks') ?>
+                            </button>
+                        </li>
+                    @endif
+                </ul>
+                <div class="tab-content">
+                    @if ($auth_user->can('manage_projects'))
+                        <div class="tab-pane fade active show" id="navs-top-projects" role="tabpanel">
+                            <div class="table-responsive text-nowrap">
 
-                    <div class="d-flex justify-content-between">
-                        <h4 class="fw-bold mx-4 mt-4">{{$client->first_name}}'s <?= get_label('projects', 'Projects') ?></h4>
-                    </div>
-                    @if (is_countable($projects) && count($projects) > 0)
-                    <?php
-                    $id = 'client_' . $client->id;
-                    ?>
-                    <x-projects-card :projects="$projects" :id="$id" :users="$users" :clients="$clients" />
-                    @else
-                    <?php
-                    $type = 'Projects'; ?>
-                    <x-empty-state-card :type="$type" />
+                                <div class="d-flex justify-content-between">
+                                    <h4 class="fw-bold mx-4 mt-4">{{ $client->first_name }}'s
+                                        <?= get_label('projects', 'Projects') ?></h4>
+                                </div>
+                                @if (is_countable($projects) && count($projects) > 0)
+                                    <?php
+                                    $id = 'client_' . $client->id;
+                                    ?>
+                                    <x-projects-card :projects="$projects" :id="$id" :users="$users"
+                                        :clients="$clients" />
+                                @else
+                                    <?php
+                                    $type = 'Projects'; ?>
+                                    <x-empty-state-card :type="$type" />
+                                @endif
+                            </div>
+                        </div>
+                    @endif
 
+                    @if ($auth_user->can('manage_tasks'))
+                        <div class="tab-pane fade {{ !$auth_user->can('manage_projects') ? 'active show' : '' }}"
+                            id="navs-top-tasks" role="tabpanel">
+                            <div class="table-responsive text-nowrap">
+
+                                <div class="d-flex justify-content-between">
+                                    <h4 class="fw-bold mx-4 mt-4">{{ $client->first_name }}'s
+                                        <?= get_label('tasks', 'Tasks') ?></h4>
+                                </div>
+                                @if ($tasks > 0)
+                                    <?php
+                                    $id = 'client_' . $client->id;
+                                    ?>
+                                    <x-tasks-card :tasks="$tasks" :id="$id" :users="$users" :clients="$clients"
+                                        :projects="$projects" />
+                                @else
+                                    <?php
+                                    $type = 'Tasks'; ?>
+                                    <x-empty-state-card :type="$type" />
+                                @endif
+                            </div>
+                        </div>
                     @endif
                 </div>
             </div>
-            @endif
+        @endif
 
-            @if ($auth_user->can('manage_tasks'))
-            <div class="tab-pane fade {{!$auth_user->can('manage_projects')?'active show':''}}" id="navs-top-tasks" role="tabpanel">
-                    <div class="table-responsive text-nowrap">
 
-                        <div class="d-flex justify-content-between">
-                            <h4 class="fw-bold mx-4 mt-4">{{$client->first_name}}'s <?= get_label('tasks', 'Tasks') ?></h4>
-                        </div>
-                        @if ($tasks > 0)
-                        <?php
-                        $id = 'client_' . $client->id;
-                        ?>
-                        <x-tasks-card :tasks="$tasks" :id="$id" :users="$users" :clients="$clients" :projects="$projects" />
-                        @else
-                        <?php
-                        $type = 'Tasks'; ?>
-                        <x-empty-state-card :type="$type" />
-
-                        @endif
-                    </div>
-            </div>
-            @endif
-        </div>
     </div>
-    @endif
 
 
-</div>
-
-
-<!-- / projects -->
+    <!-- / projects -->
 
 @endsection

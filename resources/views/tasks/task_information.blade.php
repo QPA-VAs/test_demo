@@ -118,9 +118,9 @@
                         </div>
 
                         <div class="mb-3 col-md-6">
-                            <label class="form-label" for="due-date"><?= get_label('ends_at', 'Ends at') ?></label>
+                            <label class="form-label" for="time_spent"><?= get_label('time_spent', 'Time Spent') ?></label>
                             <div class="input-group input-group-merge">
-                                <input class="form-control" type="text" name="due_date" placeholder="" value="{{ format_date($task->due_date)}}" readonly="">
+                                <input class="form-control" type="text" name="time_spent" placeholder="" value="{{ $task->time_spent}}" readonly="">
                             </div>
                         </div>
 

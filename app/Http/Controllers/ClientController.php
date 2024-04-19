@@ -32,15 +32,7 @@ class ClientController extends Controller
         $workspace = Workspace::find(session()->get('workspace_id'));
         $clients = $workspace->clients ?? [];
         if (Auth::user()->roles->pluck('name')->contains('member')) {
-            // Filter clients where tasks related to the client are related to the user
-            $clients = $clients->filter(function ($client) {
-                // Filter tasks related to the client and user
-                $tasks = $client->tasks()->whereHas('users', function ($query) {
-                    $query->where('users.id', Auth::id());
-                })->get();
-
-                return $tasks->isNotEmpty();
-            });
+           
             return view('clients.emp_clients', ['clients' => $clients]);
         }
 
@@ -68,16 +60,33 @@ class ClientController extends Controller
         $formFields = $request->validate([
             'first_name' => 'required',
             'last_name' => 'required',
-            'company' => 'required',
-            'email' => ['required', 'email', 'unique:clients,email'],
+            'business_name' => 'required',
+            'company' => 'nullable',
             'phone' => 'required',
+            'password' => 'nullable',
             'address' => 'required',
+            'zip' => 'required',
+            'email' => ['required', 'email', 'unique:clients,email'],
+            'preferred_correspondence_email' => 'required',
+            'preferred_contact_method' => 'required',
+            'business_address' => 'required',
+            'address_line_1' => 'nullable',
+            'address_line_2' => 'nullable',
+            'state_province_region' => 'nullable',
             'city' => 'required',
             'state' => 'required',
             'country' => 'required',
-            'zip' => 'required',
+            'postal_zip_code' => 'required',
+            'website' => 'nullable',
+            'prefer_company' => 'required',
             'dob' => 'required',
-            'doj' => 'required'
+            'doj' => 'required',
+            'applications_used' => 'required',
+            'maximum_budget' => 'required',
+            'agree_terms' => 'required',
+            'agree_update_terms' => 'required',
+            'signature' => 'required'
+
         ]);
 
 
@@ -88,9 +97,16 @@ class ClientController extends Controller
         }
         $dob = $request->input('dob');
         $doj = $request->input('doj');
+        $agree_terms = $request->input('agree_terms');
+        $agree_terms == "yes" ? $agree_terms = true : $agree_terms = false;
+        $agree_terms_update = $request->input('agree_update_terms');
+        $agree_terms_update == "yes" ? $agree_terms_update = true : $agree_terms_update = false;
         $formFields['password'] = '123456';
         $formFields['dob'] = format_date($dob, null, "Y-m-d");
         $formFields['doj'] = format_date($doj, null, "Y-m-d");
+        $formFields['agree_terms'] = $agree_terms;
+        $formFields['agree_update_terms'] = $agree_terms_update;
+
 
         $role_id = Role::where('name', 'client')->first()->id;
         $workspace = Workspace::find(session()->get('workspace_id'));
@@ -166,7 +182,7 @@ class ClientController extends Controller
         $formFields = $request->validate([
             'first_name' => 'required',
             'last_name' => 'required',
-            'company' => 'required',
+            'business_name' => 'nullable',
             'phone' => 'required',
             'email' => [
                 'required',
@@ -267,7 +283,7 @@ class ClientController extends Controller
             ->paginate(request("limit"))
 
             // ->withQueryString()
-            ->through(fn ($client) => [
+            ->through(fn($client) => [
                 'id' => $client->id,
                 'first_name' => $client->first_name,
                 'last_name' => $client->last_name,
@@ -281,7 +297,7 @@ class ClientController extends Controller
                                 </div>",
                 'projects' => count(isAdminOrHasAllDataAccess('client', $client->id) ? $workspace->projects : $client->projects),
                 'status' => $client->status,
-                'created_at' => format_date($client->created_at,  'H:i:s'),
+                'created_at' => format_date($client->created_at, 'H:i:s'),
                 'updated_at' => format_date($client->updated_at, 'H:i:s'),
                 'tasks' => $client->tasks()->count()
             ]);

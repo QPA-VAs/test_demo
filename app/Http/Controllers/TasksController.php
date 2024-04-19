@@ -86,17 +86,23 @@ class TasksController extends Controller
         $formFields = $request->validate([
             'title' => ['required'],
             'status_id' => ['required'],
-            'start_date' => ['required', 'before_or_equal:due_date'],
-            'due_date' => ['required'],
+            'start_date' => ['required'],
+            'time_spent' => ['required'],
             'description' => ['required'],
             'project' => ['required']
         ]);
         $project_id = $request->input('project');
 
         $start_date = $request->input('start_date');
-        $due_date = $request->input('due_date');
+        $time_spent = $request->input('time_spent');
+        $hours = floor($time_spent / 60); // Get the number of hours
+        $minutes = $time_spent % 60; // Get the remaining minutes
+
+        // Format hours and minutes as HH:MM:SS
+        $time_formatted = sprintf("%02d:%02d:00", $hours, $minutes);
+
+        $formFields['time_spent'] = $time_formatted;
         $formFields['start_date'] = format_date($start_date, null, "Y-m-d");
-        $formFields['due_date'] = format_date($due_date, null, "Y-m-d");
 
         $formFields['workspace_id'] = $this->workspace->id;
         $formFields['created_by'] = $this->user->id;
@@ -152,15 +158,22 @@ class TasksController extends Controller
         $formFields = $request->validate([
             'title' => ['required'],
             'status_id' => ['required'],
-            'start_date' => ['required', 'before_or_equal:due_date'],
-            'due_date' => ['required'],
+            'start_date' => ['required'],
+            'time_spent' => ['required'],
             'description' => ['required'],
         ]);
 
         $start_date = $request->input('start_date');
-        $due_date = $request->input('due_date');
+        $time_spent = $request->input('time_spent');
+        $hours = floor($time_spent / 60); // Get the number of hours
+        $minutes = $time_spent % 60; // Get the remaining minutes
+
+// Format hours and minutes as HH:MM:SS
+        $time_formatted = sprintf("%02d:%02d:00", $hours, $minutes);
+
+        $formFields['time_spent'] = $time_formatted;
         $formFields['start_date'] = format_date($start_date, null, "Y-m-d");
-        $formFields['due_date'] = format_date($due_date, null, "Y-m-d");
+
 
         $userIds = $request->input('user_id');
 
@@ -222,9 +235,8 @@ class TasksController extends Controller
         $client_id = (request('client_id')) ? request('client_id') : "";
         $project_id = (request('project_id')) ? request('project_id') : "";
         $start_date_from = (request('task_start_date_from')) ? request('task_start_date_from') : "";
+        $time_spent = (request('time_spent')) ? request('time_spent') : "";
         $start_date_to = (request('task_start_date_to')) ? request('task_start_date_to') : "";
-        $end_date_from = (request('task_end_date_from')) ? request('task_end_date_from') : "";
-        $end_date_to = (request('task_end_date_to')) ? request('task_end_date_to') : "";
         $where = [];
         if ($status != '') {
             $where['status_id'] = $status;
@@ -260,8 +272,8 @@ class TasksController extends Controller
         if ($start_date_from && $start_date_to) {
             $tasks->whereBetween('start_date', [$start_date_from, $start_date_to]);
         }
-        if ($end_date_from && $end_date_to) {
-            $tasks->whereBetween('due_date', [$end_date_from, $end_date_to]);
+        if ($time_spent) {
+            $where['time_spent'] = $time_spent;
         }
         if ($search) {
             $tasks = $tasks->where(function ($query) use ($search) {
@@ -281,7 +293,7 @@ class TasksController extends Controller
                     'users' => $task->users,
                     'clients' => $task->project->clients,
                     'start_date' => format_date($task->start_date),
-                    'end_date' => format_date($task->due_date),
+                    'time_spent' => $task->time_spent,
                     'status_id' => "<span class='badge bg-label-" . $task->status->color . " me-1'>" . $task->status->title . "</span>",
                     'created_at' => format_date($task->created_at,  'H:i:s'),
                     'updated_at' => format_date($task->updated_at, 'H:i:s'),
