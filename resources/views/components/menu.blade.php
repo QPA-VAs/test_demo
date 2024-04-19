@@ -164,9 +164,9 @@ $pendingLeaveRequestsCount = $query->count();
                         <div><?= get_label('email', 'Email') ?></div>
                     </a>
                 </li>
-              
+
                 </li>
-                
+
 
             </ul>
         </li>
