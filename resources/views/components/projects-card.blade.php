@@ -15,11 +15,6 @@ $flag = (Request::segment(1) == 'home' || Request::segment(1) == 'users' || Requ
                         <input type="text" id="project_start_date_between" name="start_date_between" class="form-control" placeholder="<?= get_label('start_date_between', 'Start date between') ?>" autocomplete="off">
                     </div>
                 </div>
-                <div class="mb-3 col-md-3">
-                    <div class="input-group input-group-merge">
-                        <input type="text" id="project_end_date_between" name="project_end_date_between" class="form-control" placeholder="<?= get_label('end_date_between', 'End date between') ?>" autocomplete="off">
-                    </div>
-                </div>
                 @if(isAdminOrHasAllDataAccess())
                 @if(!isset($id) || (explode('_',$id)[0] !='client' && explode('_',$id)[0] !='user'))
                 <div class="col-md-3">
@@ -71,9 +66,8 @@ $flag = (Request::segment(1) == 'home' || Request::segment(1) == 'users' || Requ
                             <th data-field="users" data-formatter="ProjectUserFormatter"><?= get_label('users', 'Users') ?></th>
                             <th data-field="clients" data-formatter="ProjectClientFormatter"><?= get_label('clients', 'Clients') ?></th>
                             <th data-sortable="true" data-field="start_date"><?= get_label('starts_at', 'Starts at') ?></th>
-                            <th data-sortable="true" data-field="end_date"><?= get_label('ends_at', 'Ends at') ?></th>
-                            <th data-sortable="true" data-field="end_date"><?= get_label('ends_at', 'Ends at') ?></th>
-                            <th data-sortable="true" data-field="budget"><?= get_label('budget', 'Budget')?></th>
+{{--                            <th data-sortable="true" data-field="time_spent"><?= get_label('time_spent', 'Time Spent') ?></th>--}}
+{{--                            <th data-sortable="true" data-field="budget"><?= get_label('budget', 'Estimat')?></th>--}}
                             <th data-sortable="true" data-field="created_at" data-visible="false"><?= get_label('created_at', 'Created at') ?></th>
                             <th data-sortable="true" data-field="updated_at" data-visible="false"><?= get_label('updated_at', 'Updated at') ?></th>
                             <th data-formatter="actionsFormatter"><?= get_label('actions', 'Actions') ?></th>

@@ -193,12 +193,6 @@
                         <div class="col-md-6">
                             <i class='bx bx-calendar text-success'></i><?= get_label('starts_at', 'Starts at') ?> : {{ format_date($project->start_date)}}
                         </div>
-
-                        <div class="col-md-6">
-                            <i class='bx bx-calendar text-danger'></i><?= get_label('ends_at', 'Ends at') ?> : {{ format_date($project->end_date)}}
-                        </div>
-
-
                     </div>
 
                 </div>

@@ -177,18 +177,6 @@
                         </div>
 
                         <div class="col-lg-4 col-md-12 col-6 mb-4">
-                            <!-- "Ends at" card -->
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="card-title d-flex align-items-start justify-content-between">
-                                        <div class="avatar flex-shrink-0">
-                                            <i class="menu-icon tf-icons bx bx-calendar-x bx-md text-danger"></i>
-                                        </div>
-                                    </div>
-                                    <span class="fw-semibold d-block mb-1"><?= get_label('ends_at', 'Ends at') ?></span>
-                                    <h3 class="card-title mb-2">{{ format_date($project->end_date) }}</h3>
-                                </div>
-                            </div>
                             <div class="card mt-4">
                                 <div class="card-body">
                                     <div class="card-title d-flex align-items-start justify-content-between">
@@ -196,7 +184,7 @@
                                             <i class="menu-icon tf-icons bx bx-purchase-tag-alt bx-md text-warning"></i>
                                         </div>
                                     </div>
-                                    <span class="fw-semibold d-block mb-1"><?= get_label('budget', 'Budget') ?></span>
+                                    <span class="fw-semibold d-block mb-1"><?= get_label('budget', 'Estimated Cost') ?></span>
                                     <h3 class="card-title mb-2">{{ !empty($project->budget) ? format_currency($project->budget) : '-' }}</h3>
                                 </div>
                             </div>
