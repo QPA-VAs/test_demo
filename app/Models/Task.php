@@ -66,4 +66,9 @@ class Task extends Model implements HasMedia
     {
         return $this->belongsTo(Workspace::class);
     }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }
