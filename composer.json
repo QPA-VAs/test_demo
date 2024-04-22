@@ -11,6 +11,7 @@
         "php": "^8.0.2",
         "aws/aws-sdk-php": "^3.296",
         "barryvdh/laravel-dompdf": "^2.0",
+        "dompdf/dompdf": "^2.0",
         "guzzlehttp/guzzle": "^7.2",
         "laminas/laminas-hydrator": "^2.0",
         "laravel/framework": "^10.0",
