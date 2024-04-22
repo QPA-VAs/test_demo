@@ -49,7 +49,7 @@ class Client extends Authenticatable implements MustVerifyEmail
         'agree_update_terms',
         'signature'
     ];
-// i used bring it at the showed part right now or where make i do that for 
+// i used bring it at the showed part right now or where make i do that for
 
     /**
      * The attributes that should be hidden for serialization.

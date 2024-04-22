@@ -425,20 +425,20 @@ if (!function_exists('escape_array')) {
 }
 if (!function_exists('isEmailConfigured')) {
 
-    function isEmailConfigured()
-    {
-        $email_settings = get_settings('email_settings');
-        if (
-            isset($email_settings['email']) && !empty($email_settings['email']) &&
-            isset($email_settings['password']) && !empty($email_settings['password']) &&
-            isset($email_settings['smtp_host']) && !empty($email_settings['smtp_host']) &&
-            isset($email_settings['smtp_port']) && !empty($email_settings['smtp_port'])
-        ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+//    function isEmailConfigured()
+//    {
+//        $email_settings = get_settings('email_settings');
+//        if (
+//            isset($email_settings['email']) && !empty($email_settings['email']) &&
+//            isset($email_settings['password']) && !empty($email_settings['password']) &&
+//            isset($email_settings['smtp_host']) && !empty($email_settings['smtp_host']) &&
+//            isset($email_settings['smtp_port']) && !empty($email_settings['smtp_port'])
+//        ) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
 }
 
 if (!function_exists('get_current_version')) {
