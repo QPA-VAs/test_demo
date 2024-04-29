@@ -49,7 +49,7 @@
     <table class="styled-table">
         <thead>
         <tr>
-            <th>Title</th>
+            <th>Date</th>
             <th>Description</th>
             <th>Time Spent</th>
             <th> VA(employee initials)</th>
@@ -58,9 +58,9 @@
         <tbody>
         @foreach($tasks as $task)
         <tr>
-            <td>{{ $task->title }}</td>
+            <td>{{ $task->start_date }}</td>
             <td>{{ $task->description }}</td>
-            <td>{{ $task->time_spent }}</td>
+            <td>{{ $formattedTime }}</td>
             <td>{{ strtoupper(substr($task->creator->first_name, 0, 1)) }}{{ strtoupper(substr($task->creator->last_name, 0, 1)) }}</td>
         </tr>
         @endforeach

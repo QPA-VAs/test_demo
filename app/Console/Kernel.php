@@ -17,8 +17,8 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('auth:clear-resets')->everyFifteenMinutes();
-        $schedule->command('generate:task-pdf')->everyMinute();
-//        $schedule->command('queue:work  --stop-when-empty')->everyMinute();
+        $schedule->command('generate:task-pdf')->mondays();
+        $schedule->command('queue:work  --stop-when-empty')->everyMinute();
 
     }
 

@@ -88,7 +88,7 @@ class GenerateTaskPDF extends Command
             if ($minutes > 0) {
                 $formattedTime .= ' ' . $minutes . ' mins';
             }
-            $html = view('tasks.pdf', ['tasks' => $tasks, 'client' => $client, 'project' => $project, $formattedTime,$creators])->render();
+            $html = view('tasks.pdf', ['tasks' => $tasks, 'client' => $client, 'project' => $project, 'formattedTime' =>  $formattedTime,$creators])->render();
 
             $dompdf = new Dompdf();
             $dompdf->loadHtml($html);
