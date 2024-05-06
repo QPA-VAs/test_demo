@@ -561,7 +561,7 @@
   pointer-events: none;
 }
 
-.apexcharts-menu.apexcharts-menu-open {
+.apexcharts-menu.apexcharts--open {
   opacity: 1;
   pointer-events: all;
   transition: 0.15s ease all;
