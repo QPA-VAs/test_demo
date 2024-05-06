@@ -88,9 +88,10 @@ class TasksController extends Controller
             'status_id' => ['required'],
             'start_date' => ['required'],
             'time_spent' => ['required'],
-            'description' => ['required'],
+            'description' => 'nullable',
             'project' => ['required']
         ]);
+      
         $project_id = $request->input('project');
 
         $start_date = $request->input('start_date');
@@ -160,7 +161,7 @@ class TasksController extends Controller
             'status_id' => ['required'],
             'start_date' => ['required'],
             'time_spent' => ['required'],
-            'description' => ['required'],
+            'description' => 'nullable',
         ]);
 
         $start_date = $request->input('start_date');

@@ -59,7 +59,7 @@ $pendingLeaveRequestsCount = $query->count();
         <li class="menu-item {{ Request::is('projects') || Request::is('tags/*') || Request::is('projects/*') ? 'active open' : '' }}">
             <a href="javascript:void(0)" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-briefcase-alt-2 text-success"></i>
-                <div><?= get_label('projects', 'Projects') ?></div>
+                <div><?= get_label('clients projects', 'Clients Projects') ?></div>
             </a>
             <ul class="menu-sub">
                 <li class="menu-item {{ Request::is('projects') || Request::is('projects/*') && !Request::is('projects/favorite') ? 'active' : '' }}">
@@ -105,7 +105,7 @@ $pendingLeaveRequestsCount = $query->count();
         <li class="menu-item {{ Request::is('users') || Request::is('users/*') ? 'active' : '' }}">
             <a href="/users" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-group text-primary"></i>
-                <div><?= get_label('users', 'Users') ?></div>
+                <div><?= get_label('va', 'VA') ?></div>
             </a>
         </li>
         @endif
