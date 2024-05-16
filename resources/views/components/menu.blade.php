@@ -129,14 +129,6 @@ $pendingLeaveRequestsCount = $query->count();
 
 
 
-        @if ($user->can('manage_activity_log'))
-        <li class="menu-item {{ Request::is('activity-log') || Request::is('activity-log/*') ? 'active' : '' }}">
-            <a href="/activity-log" class="menu-link">
-                <i class='menu-icon tf-icons bx bx-line-chart text-warning'></i>
-                <div><?= get_label('activity_log', 'Activity log') ?></div>
-            </a>
-        </li>
-        @endif
         @role('admin')
         <li class="menu-item {{ Request::is('settings') || Request::is('roles/*') || Request::is('settings/*') ? 'active open' : '' }}">
             <a href="javascript:void(0)" class="menu-link menu-toggle">
