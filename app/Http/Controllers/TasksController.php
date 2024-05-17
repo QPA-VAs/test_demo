@@ -69,7 +69,7 @@ class TasksController extends Controller
             $project = Project::find($id);
             $users = $project->users;
         } else {
-            $projects = isAdminOrHasAllDataAccess() ? $this->workspace->projects : $this->user->projects;
+            $projects = $this->workspace->projects;
             $users = $this->workspace->users;
         }
         return view('tasks.create_task', ['project' => $project, 'projects' => $projects, 'users' => $users]);
@@ -91,7 +91,7 @@ class TasksController extends Controller
             'description' => 'nullable',
             'project' => ['required']
         ]);
-      
+
         $project_id = $request->input('project');
 
         $start_date = $request->input('start_date');
