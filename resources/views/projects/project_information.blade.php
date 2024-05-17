@@ -42,7 +42,6 @@
                             <h2 class="fw-bold mt-4 mb-4">{{ $project->title }} <a href="javascript:void(0);" class="mx-2">
                                     <i class='bx {{$project->is_favorite ? "bxs" : "bx"}}-star favorite-icon text-warning' data-id="{{$project->id}}" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{$project->is_favorite ? get_label('add_favorite', 'Click to remove from favorite') : get_label('remove_favorite', 'Click to mark as favorite')}}" data-favorite="{{$project->is_favorite ? 1 : 0}}"></i>
                                 </a></h2>
-                            <span class='badge bg-label-{{$project->status->color}} me-1'> {{$project->status->title}}</span>
                         </div>
                         <div class="col-md-3 mt-4">
                             <div class="mb-3 text-center">
@@ -86,64 +85,6 @@
                 <hr class="my-0" />
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6 col-lg-4 col-xl-4 order-0 mb-4">
-                            <div class="card h-100">
-                                <span class="badge bg-label-info m-2"><?= get_label('reload_page_to_change_chart_colors', 'Reload the page to change chart colors') ?></span>
-                                <div class="card-header d-flex align-items-center justify-content-between pt-3 pb-1">
-                                    <div class="card-title mb-0">
-                                        <h5 class="m-0 me-2"><?= get_label('task_statistics', 'Task statistics') ?></h5>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <div id="taskStatisticsChart"></div>
-                                    </div>
-                                    <?php $total_tasks_count = 0; ?>
-                                    <ul class="p-0 m-0">
-                                        @foreach ($statuses as $status)
-                                        <li class="d-flex mb-4 pb-1">
-                                            <div class="avatar flex-shrink-0 me-3">
-                                                <span class="avatar-initial rounded bg-label-{{$status->color}}"><i class="bx bx-task"></i></span>
-                                            </div>
-                                            <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                                <div class="me-2">
-                                                    <a href="/tasks?project={{$project->id}}&status={{ $status->id }}">
-                                                        <h6 class="mb-0">{{ $status->title }}</h6>
-                                                    </a>
-                                                </div>
-                                                <div class="user-progress">
-                                                    <?php
-                                                    $statusCount = $project->tasks->where('status_id', $status->id)->count();
-                                                    $total_tasks_count += $statusCount;
-                                                    ?>
-                                                    <div class="status-count">
-                                                        <small class="fw-semibold">{{$statusCount}}</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        @endforeach
-                                    </ul>
-
-                                    <li class="d-flex mb-4 pb-1">
-                                        <div class="avatar flex-shrink-0 me-3">
-                                            <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-menu"></i></span>
-                                        </div>
-                                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                            <div class="me-2">
-                                                <h5 class="mb-0"><?= get_label('total', 'Total') ?></h5>
-                                            </div>
-                                            <div class="user-progress">
-                                                <div class="status-count">
-                                                    <h5 class="mb-0">{{$total_tasks_count}}</h5>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
-
-                                </div>
-                            </div>
-                        </div>
                         <div class="col-lg-4 col-md-12 col-6 mb-4">
                             <!-- "Starts at" card -->
                             <div class="card">
@@ -275,14 +216,6 @@
                                 <input type="text" id="end_date_between" name="end_date_between" class="form-control" placeholder="<?= get_label('end_date_between', 'End date between') ?>" autocomplete="off">
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <select class="form-select" id="status_filter" aria-label="Default select example">
-                                <option value=""><?= get_label('select_status', 'Select status') ?></option>
-                                <option value="incomplete"><?= get_label('incomplete', 'Incomplete') ?></option>
-                                <option value="complete"><?= get_label('complete', 'Complete') ?></option>
-
-                            </select>
-                        </div>
                     </div>
 
                     <input type="hidden" name="start_date_from" id="start_date_from">
@@ -304,7 +237,6 @@
                                 <th data-sortable="true" data-field="end_date"><?= get_label('end_date', 'End date') ?></th>
                                 <th data-sortable="true" data-field="cost"><?= get_label('cost', 'Cost') ?></th>
                                 <th data-sortable="true" data-field="progress"><?= get_label('progress', 'Progress') ?></th>
-                                <th data-sortable="true" data-field="status"><?= get_label('status', 'Status') ?></th>
                                 <th data-sortable="true" data-field="description" data-visible="false"><?= get_label('description', 'Description') ?></th>
                                 <th data-sortable="true" data-field="created_by" data-visible="false"><?= get_label('created_by', 'Created by') ?></th>
                                 <th data-sortable="true" data-field="created_at" data-visible="false"><?= get_label('created_at', 'Created at') ?></th>
@@ -426,13 +358,6 @@
                                     <input type="text" id="end_date" name="end_date" class="form-control" placeholder="" autocomplete="off">
                                 </div>
                                 <div class="col-6 mb-3">
-                                    <label for="nameBasic" class="form-label"><?= get_label('status', 'Status') ?> <span class="asterisk">*</span></label>
-                                    <select class="form-select" name="status">
-                                        <option value="incomplete"><?= get_label('incomplete', 'Incomplete') ?></option>
-                                        <option value="complete"><?= get_label('complete', 'Complete') ?></option>
-                                    </select>
-                                </div>
-                                <div class="col-6 mb-3">
                                     <label for="nameBasic" class="form-label"><?= get_label('cost', 'Cost') ?> <span class="asterisk">*</span></label>
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text">{{$general_settings['currency_symbol']}}</span>
@@ -485,13 +410,6 @@
                                     <input type="text" id="update_milestone_end_date" name="end_date" class="form-control" placeholder="" autocomplete="off">
                                 </div>
                                 <div class="col-6 mb-3">
-                                    <label for="nameBasic" class="form-label"><?= get_label('status', 'Status') ?> <span class="asterisk">*</span></label>
-                                    <select class="form-select" id="milestone_status" name="status">
-                                        <option value="incomplete"><?= get_label('incomplete', 'Incomplete') ?></option>
-                                        <option value="complete"><?= get_label('complete', 'Complete') ?></option>
-                                    </select>
-                                </div>
-                                <div class="col-6 mb-3">
                                     <label for="nameBasic" class="form-label"><?= get_label('cost', 'Cost') ?> <span class="asterisk">*</span></label>
                                     <div class="input-group input-group-merge">
                                         <span class="input-group-text">{{$general_settings['currency_symbol']}}</span>
@@ -532,18 +450,6 @@ $total_tasks = 0;
 $ran = array('#63ed7a', '#ffa426', '#fc544b', '#6777ef', '#FF00FF', '#53ff1a', '#ff3300', '#0000ff', '#00ffff', '#99ff33', '#003366', '#cc3300', '#ffcc00', '#ff00ff', '#ff9900', '#3333cc', '#ffff00');
 $backgroundColor = array_rand($ran);
 $d = $ran[$backgroundColor];
-foreach ($statuses as $status) {
-
-    $task_count = $project->tasks->where('status_id', $status->id)->count();
-    array_push($task_counts, $task_count);
-
-    array_push($titles, "'" . $status->title . "'");
-
-    $k = array_rand($ran);
-    $v = $ran[$k];
-    array_push($bg_colors, "'" . $v . "'");
-    $total_tasks += $task_count;
-}
 $titles = implode(",", $titles);
 $task_counts = implode(",", $task_counts);
 $bg_colors = implode(",", $bg_colors);

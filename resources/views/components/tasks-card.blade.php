@@ -44,17 +44,17 @@ $flag = (Request::segment(1) == 'home' || Request::segment(1) == 'users' || Requ
                 @endif
                 @endif
 
-                <div class="col-md-3">
-                    <select class="form-select" id="task_status_filter" aria-label="Default select example">
-                        <option value=""><?= get_label('select_status', 'Select status') ?></option>
-                        @foreach ($statuses as $status)
-                        @php
-                        $selected = (request()->has('status') && request()->status == $status->id) ? 'selected' : '';
-                        @endphp
-                        <option value="{{ $status->id }}" {{ $selected }}>{{ $status->title }}</option>
-                        @endforeach
-                    </select>
-                </div>
+{{--                <div class="col-md-3">--}}
+{{--                    <select class="form-select" id="task_status_filter" aria-label="Default select example">--}}
+{{--                        <option value=""><?= get_label('select_status', 'Select status') ?></option>--}}
+{{--                        @foreach ($statuses as $status)--}}
+{{--                        @php--}}
+{{--                        $selected = (request()->has('status') && request()->status == $status->id) ? 'selected' : '';--}}
+{{--                        @endphp--}}
+{{--                        <option value="{{ $status->id }}" {{ $selected }}>{{ $status->title }}</option>--}}
+{{--                        @endforeach--}}
+{{--                    </select>--}}
+{{--                </div>--}}
 
 
             </div>
@@ -79,7 +79,7 @@ $flag = (Request::segment(1) == 'home' || Request::segment(1) == 'users' || Requ
                             <th data-field="clients" data-formatter="TaskClientFormatter"><?= get_label('clients', 'Clients') ?></th>
                             <th data-sortable="true" data-field="start_date"><?= get_label('starts_at', 'Starts at') ?></th>
                             <th data-sortable="true" data-field="time_spent"><?= get_label('time_spent', 'Time Spent') ?></th>
-                            <th data-sortable="true" data-field="status_id"><?= get_label('status', 'Status') ?></th>
+{{--                            <th data-sortable="true" data-field="status_id"><?= get_label('status', 'Status') ?></th>--}}
                             <th data-sortable="true" data-field="created_at" data-visible="false"><?= get_label('created_at', 'Created at') ?></th>
                             <th data-sortable="true" data-field="updated_at" data-visible="false"><?= get_label('updated_at', 'Updated at') ?></th>
                             <th data-formatter="actionFormatter"><?= get_label('actions', 'Actions') ?></th>

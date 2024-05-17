@@ -49,25 +49,6 @@
                 </div>
                 <div class="row">
                     <div class="mb-3 col-md-6">
-                        <label class="form-label" for="status_id"><?= get_label('status', 'Status') ?> <span class="asterisk">*</span></label>
-                        <div class="input-group">
-                            <select class="form-select" id="status_id" name="status_id">
-                                @foreach($statuses as $status)
-                                <option value="{{$status->id}}" class="badge bg-label-{{$status->color}}" <?php if ($project->status->id == $status->id) {
-                                                                                                                print_r('selected');
-                                                                                                            } ?>>{{$status->title}} ({{$status->color}})</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mt-2">
-                            <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#create_status_modal"><button type="button" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title=" <?= get_label('create_status', 'Create status') ?>"><i class="bx bx-plus"></i></button></a>
-                            <a href="/status/manage" target="_blank"><button type="button" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="<?= get_label('manage_statuses', 'Manage statuses') ?>"><i class="bx bx-list-ul"></i></button></a>
-                        </div>
-                        @error('status_id')
-                        <p class="text-danger text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div class="mb-3 col-md-6">
                         <label for="budget" class="form-label"><?= get_label('budget', 'Budget') ?></label>
                         <div class="input-group input-group-merge">
                             <span class="input-group-text">{{$general_settings['currency_symbol']}}</span>

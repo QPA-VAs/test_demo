@@ -26,8 +26,8 @@
         <div>
             @php
             $url = $is_favorite == 1 ? url('projects/list/favorite') : url('projects/list');
-            $additionalParams = request()->has('status') ? '/projects/list?status=' . request()->status : '';
-            $finalUrl = url($additionalParams ?: $url);
+//            $additionalParams = request()->has('status') ? '/projects/list?status=' . request()->status : '';
+            $finalUrl = url($url);
             @endphp
             <a href="{{url('/projects/create')}}"><button type="button" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="<?= get_label('create_project', 'Create project') ?>"><i class='bx bx-plus'></i></button></a>
             <a href="{{ $finalUrl }}"><button type="button" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="<?= get_label('list_view', 'List view') ?>"><i class='bx bx-list-ul'></i></button></a>
@@ -35,16 +35,6 @@
     </div>
 
     <div class="row mb-3">
-        <div class="col-md-3">
-            <select class="form-select" id="status_filter" aria-label="Default select example">
-                <option value=""><?= get_label('filter_by_status', 'Filter by status') ?></option>
-                @foreach ($statuses as $status)
-                <?php $selected = isset($_REQUEST['status']) && $_REQUEST['status'] !== '' && $_REQUEST['status'] == $status->id  ? "selected" : "";
-                ?>
-                <option value="{{$status->id}}" {{$selected}}>{{$status->title}}</option>
-                @endforeach
-            </select>
-        </div>
         <div class="col-md-3">
             <select class="form-select" id="sort" aria-label="Default select example">
                 <option value=""><?= get_label('sort_by', 'Sort by') ?></option>
@@ -113,7 +103,6 @@
                         </div>
                     </div>
                     <div class="my-4 d-flex justify-content-between">
-                        <span class='badge bg-label-{{$project->status->color}} me-1'> {{$project->status->title}}</span>
                         @if(!empty($project->budget) && $project->budget !== null)
                         <span class='badge bg-label-primary me-1'> {{format_currency($project->budget)}}</span>
                         @endif

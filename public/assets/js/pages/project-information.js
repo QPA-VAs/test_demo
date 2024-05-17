@@ -74,7 +74,7 @@ function queryParamsProjectMilestones(p) {
         "start_date_to": $('#start_date_to').val(),
         "end_date_from": $('#end_date_from').val(),
         "end_date_to": $('#end_date_to').val(),
-        "status": $('#status_filter').val(),
+        // "status": $('#status_filter').val(),
         page: p.offset / p.limit + 1,
         limit: p.limit,
         sort: p.sort,
@@ -138,10 +138,10 @@ $('#end_date_between').on('cancel.daterangepicker', function (ev, picker) {
 });
 
 
-$('#status_filter').on('change', function (e) {
-    e.preventDefault();
-    $('#project_milestones_table').bootstrapTable('refresh');
-});
+// $('#status_filter').on('change', function (e) {
+//     e.preventDefault();
+//     $('#project_milestones_table').bootstrapTable('refresh');
+// });
 
 $('#milestone_progress').on('change', function (e) {
     var rangeValue = $(this).val();

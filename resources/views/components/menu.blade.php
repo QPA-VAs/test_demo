@@ -91,14 +91,14 @@ $pendingLeaveRequestsCount = $query->count();
         </li>
         @endif
 
-        @if ($user->can('manage_projects') || $user->can('manage_tasks'))
-        <li class="menu-item {{ Request::is('status/manage') ? 'active' : '' }}">
-            <a href="/status/manage" class="menu-link">
-                <i class='menu-icon tf-icons bx bx-grid-small text-secondary'></i>
-                <div><?= get_label('statuses', 'Statuses') ?></div>
-            </a>
-        </li>
-        @endif
+{{--        @if ($user->can('manage_projects') || $user->can('manage_tasks'))--}}
+{{--        <li class="menu-item {{ Request::is('status/manage') ? 'active' : '' }}">--}}
+{{--            <a href="/status/manage" class="menu-link">--}}
+{{--                <i class='menu-icon tf-icons bx bx-grid-small text-secondary'></i>--}}
+{{--                <div><?= get_label('statuses', 'Statuses') ?></div>--}}
+{{--            </a>--}}
+{{--        </li>--}}
+{{--        @endif--}}
 
 
         @if ($user->can('manage_users'))

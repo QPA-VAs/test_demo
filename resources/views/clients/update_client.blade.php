@@ -193,12 +193,17 @@
 
                     <div class="mt-2">
                         <button type="submit" class="btn btn-primary me-2" id="submit_btn"><?= get_label('update', 'Update') ?></button>
-                        <button type="reset" class="btn btn-outline-secondary"><?= get_label('cancel', 'Cancel') ?></button>
+                        <button type="reset" id="reset" class="btn btn-outline-secondary"><?= get_label('cancel', 'Cancel') ?></button>
                     </div>
-
                 </div>
             </form>
         </div>
     </div>
 </div>
+<script>
+    document.getElementById('reset').onclick = function() {
+        window.location.href = '/clients';
+    };
+</script>
+
 @endsection

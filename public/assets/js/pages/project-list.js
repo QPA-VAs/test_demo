@@ -3,7 +3,7 @@
 
 function queryParamsProjects(p) {
     return {
-        "status": $('#status_filter').val(),
+        // "status": $('#status_filter').val(),
         "user_id": $('#projects_user_filter').val(),
         "client_id": $('#projects_client_filter').val(),
         "project_start_date_from": $('#project_start_date_from').val(),
@@ -68,7 +68,7 @@ function ProjectUserFormatter(value, row, index) {
 }
 
 
-$('#status_filter,#projects_user_filter,#projects_client_filter').on('change', function (e) {
-    e.preventDefault();
-    $('#projects_table').bootstrapTable('refresh');
-});
+// $('#status_filter,#projects_user_filter,#projects_client_filter').on('change', function (e) {
+//     e.preventDefault();
+//     $('#projects_table').bootstrapTable('refresh');
+// });

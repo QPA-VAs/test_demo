@@ -32,7 +32,6 @@ class SearchController extends Controller
                     ->paginate(10)
                     ->beginWithWildcard()
                     ->search($query);
-
                 return view('search', ['results' => $results, 'query' => $query]);
             }
         }else{
