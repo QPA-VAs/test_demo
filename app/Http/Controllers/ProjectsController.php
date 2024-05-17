@@ -67,7 +67,7 @@ class ProjectsController extends Controller
             $sort = 'updated_at';
             $order = 'asc';
         }
-        $projects = isAdminOrHasAllDataAccess() ? $this->workspace->projects() : $this->user->projects();
+        $projects = $this->workspace->projects();
         $projects->where($where);
         if (!empty($selectedTags)) {
             $projects->whereHas('tags', function ($q) use ($selectedTags) {
@@ -80,7 +80,7 @@ class ProjectsController extends Controller
 
     public function list_view(Request $request, $type = null)
     {
-        $projects = isAdminOrHasAllDataAccess() ? $this->workspace->projects : $this->user->projects;
+        $projects = $this->workspace->projects;
         $users = $this->workspace->users;
         $clients = $this->workspace->clients;
         $is_favorites = 0;
@@ -297,7 +297,7 @@ class ProjectsController extends Controller
             }
             $projects = $belongs_to->projects();
         } else {
-            $projects = isAdminOrHasAllDataAccess() ? $this->workspace->projects() : $this->user->projects();
+            $projects = $this->workspace->projects();
         }
         if ($user_id) {
             $user = User::find($user_id);
@@ -622,7 +622,7 @@ class ProjectsController extends Controller
                     $creator = User::find(substr($milestone->created_by, 2)); // Remove the 'u_' prefix
                 } elseif (strpos($milestone->created_by, 'c_') === 0) {
                     // The ID corresponds to a client
-                    $creator = Client::find(substr($milestone->created_by, 2)); // Remove the 'c_' prefix                    
+                    $creator = Client::find(substr($milestone->created_by, 2)); // Remove the 'c_' prefix
                 }
                 if ($creator !== null) {
                     $creator = $creator->first_name . ' ' . $creator->last_name;
@@ -640,7 +640,7 @@ class ProjectsController extends Controller
                 $progress = '<div class="demo-vertical-spacing">
                 <div class="progress">
                   <div class="progress-bar" role="progressbar" style="width: ' . $milestone->progress . '%" aria-valuenow="' . $milestone->progress . '" aria-valuemin="0" aria-valuemax="100">
-                    
+
                   </div>
                 </div>
               </div> <h6 class="mt-2">' . $milestone->progress . '%</h6>';

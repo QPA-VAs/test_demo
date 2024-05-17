@@ -25,7 +25,6 @@
         </div>
         <div>
             <a href="{{url('/projects/create')}}"><button type="button" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="<?= get_label('create_project', 'Create project') ?>"><i class='bx bx-plus'></i></button></a>
-            <a href="{{url(request()->has('status') ? '/projects?status=' . request()->status : '/projects')}}"><button type="button" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="<?= get_label('grid_view', 'Grid view') ?>"><i class='bx bxs-grid-alt'></i></button></a>
         </div>
     </div>
     <x-projects-card :projects="$projects" :users="$users" :clients="$clients" :favorites="$is_favorites" />

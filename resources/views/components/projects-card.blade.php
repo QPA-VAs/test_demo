@@ -36,14 +36,14 @@ $flag = (Request::segment(1) == 'home' || Request::segment(1) == 'users' || Requ
                 </div>
                 @endif
                 @endif
-                <div class="col-md-3">
-                    <select class="form-select" id="status_filter" aria-label="Default select example">
-                        <option value=""><?= get_label('select_status', 'Select status') ?></option>
-                        @foreach ($statuses as $status)
-                        <option value="{{$status->id}}" @if(request()->has('status') && request()->status == $status->id) selected @endif>{{$status->title}}</option>
-                        @endforeach
-                    </select>
-                </div>
+{{--                <div class="col-md-3">--}}
+{{--                    <select class="form-select" id="status_filter" aria-label="Default select example">--}}
+{{--                        <option value=""><?= get_label('select_status', 'Select status') ?></option>--}}
+{{--                        @foreach ($statuses as $status)--}}
+{{--                        <option value="{{$status->id}}" @if(request()->has('status') && request()->status == $status->id) selected @endif>{{$status->title}}</option>--}}
+{{--                        @endforeach--}}
+{{--                    </select>--}}
+{{--                </div>--}}
             </div>
 
             <input type="hidden" name="project_start_date_from" id="project_start_date_from">

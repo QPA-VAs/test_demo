@@ -17,7 +17,7 @@
     @foreach ($results as $result)
     <div class="card my-4">
         <div class="mx-4 my-2 d-flex align-items-baseline">
-            <h4 class="mb-0">{{class_basename($result)}}: </h4><span class="lead mx-2"><a href="{{$result->getlink()}}" target="_blank">{{$result->getresult()}}</a></span>
+            <h4 class="mb-0">{{class_basename($result)}}: </h4><span class="lead mx-2"><a href="{{ str_replace('/show', '', $result->getlink()) }}" target="_blank">{{$result->getresult()}}</a></span>
         </div>
     </div>
     @endforeach

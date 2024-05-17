@@ -91,7 +91,7 @@ class TasksController extends Controller
             'description' => 'nullable',
             'project' => ['required']
         ]);
-      
+
         $project_id = $request->input('project');
 
         $start_date = $request->input('start_date');

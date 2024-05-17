@@ -1,8 +1,8 @@
 'use strict';
-$('#status_filter').on('change', function (e) {
-    var status = $(this).val();
-    location.href = setUrlParameter(location.href, 'status', status);
-});
+// $('#status_filter').on('change', function (e) {
+//     var status = $(this).val();
+//     location.href = setUrlParameter(location.href, 'status', status);
+// });
 $('#sort').on('change', function (e) {
     var sort = $(this).val();
     location.href = setUrlParameter(location.href, 'sort', sort);
@@ -11,7 +11,7 @@ $('#sort').on('change', function (e) {
 
 $('#tags_filter').click(function () {
     // Get the selected values from status select and other filters
-    var status = $('#status_filter').val();
+    // var status = $('#status_filter').val();
     var sort = $('#sort').val();
     // Get selected tags using Select2
     var selectedTags = $('#selected_tags').val();
@@ -20,9 +20,9 @@ $('#tags_filter').click(function () {
     var url = "/projects";
     var params = [];
 
-    if (status) {
-        params.push("status=" + status);
-    }
+    // if (status) {
+    //     params.push("status=" + status);
+    // }
 
     if (sort) {
         params.push("sort=" + sort);

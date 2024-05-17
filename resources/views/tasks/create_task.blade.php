@@ -51,8 +51,8 @@
                         <p class="text-danger text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div class="mb-3 col-md-6">
-                        <label class="form-label" for="status"><?= get_label('status', 'Status') ?> <span class="asterisk">*</span></label>
+                    <div class="mb-3 col-md-6" style="visibility: hidden;">
+                    <label class="form-label" for="status"><?= get_label('status', 'Status') ?> <span class="asterisk">*</span></label>
                         <div class="input-group">
 
                             <select class="form-select" id="status_id" name="status_id">
@@ -138,7 +138,7 @@
                     </div>
                 </div>
 
-                
+
 
                 <div class="mt-2">
                     <button type="submit" class="btn btn-primary me-2" id="submit_btn"><?= get_label('create', 'Create') ?></button>

@@ -67,8 +67,8 @@
                         <p class="text-danger text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div class="mb-3 col-md-6">
-                        <label class="form-label" for="status"><?= get_label('status', 'Status') ?> <span class="asterisk">*</span></label>
+                    <div class="mb-3 col-md-6" style="visibility: hidden;">
+                    <label class="form-label" for="status"><?= get_label('status', 'Status') ?> <span class="asterisk">*</span></label>
                         <div class="input-group">
 
 
