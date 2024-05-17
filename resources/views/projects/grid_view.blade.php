@@ -103,9 +103,10 @@
                         </div>
                     </div>
                     <div class="my-4 d-flex justify-content-between">
+
                         @if(!empty($project->budget) && $project->budget !== null)
                         <span class='badge bg-label-primary me-1'> {{format_currency($project->budget)}}</span>
-                        @endif
+                      
                     </div>
                     <div class="my-4 d-flex justify-content-between">
                         <span><i class='bx bx-task text-primary'></i> <b><?= isAdminOrHasAllDataAccess() ? count($project->tasks) : $auth_user->project_tasks($project->id)->count(); ?></b> <?= get_label('tasks', 'Tasks') ?></span>
@@ -132,7 +133,7 @@
                                         <?php
                                         $remaining = $count - $displayed;
                                         echo '<span class="badge badge-center rounded-pill bg-primary">+' . $remaining . '</span>';
-                                        break;
+                           
                                         ?>
                                         @endif
                                         @endforeach

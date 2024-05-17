@@ -66,9 +66,9 @@ class ClientController extends Controller
             'password' => 'nullable',
             'address' => 'required',
             'zip' => 'required',
-            'email' => ['required', 'email', 'unique:clients,email'],
+            'email' => ['required', 'email'],
             'preferred_correspondence_email' => 'required',
-            'preferred_contact_method' => 'required',
+            'preferred_contact_method' => 'nullable',
             'business_address' => 'required',
             'address_line_1' => 'nullable',
             'address_line_2' => 'nullable',
@@ -81,11 +81,11 @@ class ClientController extends Controller
             'prefer_company' => 'required',
             'dob' => 'required',
             'doj' => 'required',
-            'applications_used' => 'required',
-            'maximum_budget' => 'required',
-            'agree_terms' => 'required',
-            'agree_update_terms' => 'required',
-            'signature' => 'required'
+            'applications_used' => 'nullable',
+            'maximum_budget' => 'nullable',
+            'agree_terms' => 'nullable',
+            'agree_update_terms' => 'nullable',
+            'signature' => 'nullable'
 
         ]);
 

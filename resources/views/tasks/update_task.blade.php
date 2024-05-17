@@ -47,8 +47,8 @@
                 @endif
                 <div class="row">
                     <div class="mb-3">
-                        <label for="title" class="form-label"><?= get_label('title', 'Title') ?> <span class="asterisk">*</span></label>
-                        <input class="form-control" type="text" id="title" name="title" placeholder="<?= get_label('please_enter_title', 'Please enter title') ?>" value="{{ $task->title }}">
+                        <label for="title" class="form-label"><?= get_label('task_description', 'Task Description') ?> <span class="asterisk">*</span></label>
+                        <input class="form-control" type="text" id="title" name="title" placeholder="<?= get_label('please_enter_task_description', 'Please enter task description') ?>" value="{{ $task->title }}">
                         @error('title')
                         <p class="text-danger text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -116,7 +116,7 @@
                         <label class="form-label" for="user_id"><?= get_label('select_users', 'Select users') ?> (<?= get_label('users_associated_with_project', 'Users associated with project') ?> <b>{{$project->title}}</b>)</label>
                         <div class="input-group">
 
-                            <select id="" class="form-control js-example-basic-multiple" name="user_id[]" multiple="multiple" data-placeholder="<?= get_label('type_to_search', 'Type to search') ?>">
+                            <select id="" class="form-control js-example-basic-multiple" name="user_id[]" data-placeholder="<?= get_label('type_to_search', 'Type to search') ?>">
                                 @foreach($users as $user)
                                 <option value="{{$user->id}}" <?php if ($task_users->contains($user)) {
                                                                     echo "selected";
@@ -127,16 +127,7 @@
                     </div>
                 </div>
 
-                <div class="row">
-
-                    <div class="mb-3">
-                        <label for="description" class="form-label"><?= get_label('description', 'Description') ?> <span class="asterisk">*</span></label>
-                        <textarea class="form-control" id="description" name="description" rows="5" placeholder="<?= get_label('please_enter_description', 'Please enter description') ?>">{{ $task->description }}</textarea>
-                        @error('description')
-                        <p class="text-danger text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                </div>
+                
 
                 <div class="mt-2">
                     <button type="submit" class="btn btn-primary me-2" id="submit_btn"><?= get_label('update', 'Update') ?></button>
