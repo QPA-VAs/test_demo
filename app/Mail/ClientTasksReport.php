@@ -28,7 +28,7 @@ class ClientTasksReport extends Mailable
     {
 //        return $this->view('emails.task_pdf')
         return $this->view('emails.weekly_tasks_report')
-            ->from('Washghana@washghana.com')
+            ->from('info@qpaapp.com')
             ->attachData($this->pdfContent, $this->fileName, [
                 'mime' => 'application/pdf',
             ])
