@@ -330,7 +330,7 @@ class ProjectsController extends Controller
                     'start_date' => format_date($project->start_date),
                     'end_date' => format_date($project->end_date),
                     'budget' => !empty($project->budget) && $project->budget !== null ? format_currency($project->budget) : '-',
-                    'status_id' => "<span class='badge bg-label-" . $project->status->color . " me-1'>" . $project->status->title . "</span>",
+//                    'status_id' => "<span class='badge bg-label-" . $project->status->color . " me-1'>" . $project->status->title . "</span>",
                     'created_at' => format_date($project->created_at, 'H:i:s'),
                     'updated_at' => format_date($project->updated_at, 'H:i:s'),
                 ]

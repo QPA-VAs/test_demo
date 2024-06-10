@@ -33,6 +33,6 @@ class WeeklyTaskReport extends Mailable
         }
 
         return $email->subject('Weekly Tasks Report')
-        ->from('Washghana@washghana.com');
+        ->from('info@qpaapp.com');
     }
 }
