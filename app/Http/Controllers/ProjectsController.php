@@ -113,7 +113,7 @@ class ProjectsController extends Controller
     {
         $formFields = $request->validate([
             'title' => ['required'],
-            'status_id' => ['required'],
+//            'status_id' => ['required'],
             'start_date' => ['required', 'before_or_equal:end_date'],
             'end_date' => ['required'],
             'budget' => ['nullable', 'regex:/^\d+(\.\d+)?$/'],
