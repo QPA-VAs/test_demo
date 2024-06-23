@@ -41,7 +41,7 @@ class GenerateTaskPDF extends Command
         $endDate = Carbon::now()->startOfWeek();
         $clients = \App\Models\Client::all();
 
-        $adminEmail = \App\Models\User::where('last_name', 'admin')->value('email');
+        $adminEmail = \App\Models\User::where('last_name', 'Bawuah')->value('email');
 
         $pdfAttachments = [];
 
@@ -59,8 +59,9 @@ class GenerateTaskPDF extends Command
                 continue; // Skip clients with no tasks created last week
             }
 
-            // Calculate total time spent
-            $totalTimeSpent = $tasks->sum(function ($task) {
+            // Calculate total time spent and prepare task data
+            $totalTimeSpent = 0;
+            $taskData = $tasks->map(function ($task) use (&$totalTimeSpent) {
                 // Split the time spent into hours and minutes
                 $parts = explode(':', $task->time_spent);
                 $hours = (int)$parts[0];
@@ -68,27 +69,43 @@ class GenerateTaskPDF extends Command
 
                 // Convert hours to minutes and add them to the total minutes
                 $totalMinutes = $hours * 60 + $minutes;
+                $totalTimeSpent += $totalMinutes;
 
-                return $totalMinutes;
+                // Convert total minutes back to hours and minutes format
+                $hours = floor($totalMinutes / 60);
+                $minutes = $totalMinutes % 60;
+                $formattedTime = '';
+                if ($hours > 0) {
+                    $formattedTime .= $hours . ' hrs';
+                }
+                if ($minutes > 0) {
+                    $formattedTime .= ' ' . $minutes . ' mins';
+                }
+
+                // Add formatted time to task
+                $task->formattedTimeSpent = $formattedTime;
+
+                return $task;
             });
+
+            // Convert total minutes back to hours and minutes format
+            $totalHours = floor($totalTimeSpent / 60);
+            $totalMinutes = $totalTimeSpent % 60;
+            $formattedTotalTime = '';
+            if ($totalHours > 0) {
+                $formattedTotalTime .= $totalHours . ' hrs';
+            }
+            if ($totalMinutes > 0) {
+                $formattedTotalTime .= ' ' . $totalMinutes . ' mins';
+            }
 
             // Extract the names of the creators
             $creators = $tasks->map(function ($task) {
                 return $task->creator->first_name . ' ' . $task->creator->last_name;
             })->unique()->toArray();
-            // Convert total minutes back to hours and minutes format
-            $hours = floor($totalTimeSpent / 60);
-            $minutes = $totalTimeSpent % 60;
 
-            /// Format the time as "X hrs Y mins"
-            $formattedTime = '';
-            if ($hours > 0) {
-                $formattedTime .= $hours . ' hrs';
-            }
-            if ($minutes > 0) {
-                $formattedTime .= ' ' . $minutes . ' mins';
-            }
-            $html = view('tasks.pdf', ['tasks' => $tasks, 'client' => $client, 'project' => $project, 'formattedTime' =>  $formattedTime,$creators])->render();
+            // Pass data to the view
+            $html = view('tasks.pdf', ['tasks' => $taskData, 'client' => $client, 'project' => $project, 'formattedTotalTime' => $formattedTotalTime, 'creators' => $creators])->render();
 
             $dompdf = new Dompdf();
             $dompdf->loadHtml($html);
@@ -107,18 +124,15 @@ class GenerateTaskPDF extends Command
             ];
             $pdfContent = base64_encode($pdfContent);
 
-            Queue::push(function ($job) use ($client, $pdfContent, $fileName, $formattedTime) {
+            Queue::push(function ($job) use ($client, $pdfContent, $fileName, $formattedTotalTime) {
                 $maxRetries = 3;
                 try {
                     // Attempt to send the email
-                    Mail::to($client->email)->send(new ClientTasksReport($client, base64_decode($pdfContent), $fileName, $formattedTime));
+                    Mail::to($client->email)->send(new ClientTasksReport($client, base64_decode($pdfContent), $fileName, $formattedTotalTime));
                     // Mark the job as processed
                     $job->delete();
                 } catch (\Exception $e) {
                     // Handle the exception
-                    // Check if the job has exceeded the maximum number of retries
-
-                    // Check if the job has exceeded the maximum number of retries
                     if ($job->attempts() >= $maxRetries) {
                         // Job has reached maximum retries, mark it as failed
                         $job->fail($e); // Mark the job as failed with the exception
@@ -132,16 +146,13 @@ class GenerateTaskPDF extends Command
             $this->info('Email queued for client ' . $client->name);
         }
 
-// Send all PDFs as one email to the admin
-//        $pdfAttachments = mb_convert_encoding($pdfAttachments,'UTF-8');
+        // Send all PDFs as one email to the admin
         foreach ($pdfAttachments as &$attachment) {
             if (is_callable($attachment['data'])) {
                 $attachment['data'] = new SerializableClosure($attachment['data']);
             }
         }
         Queue::push(function () use ($adminEmail, $pdfAttachments) {
-            // Convert any SerializableClosure instances back to closures
-            // Decode base64-encoded PDF content before sending the email
             foreach ($pdfAttachments as &$attachment) {
                 $attachment['data'] = base64_decode($attachment['data']);
             }

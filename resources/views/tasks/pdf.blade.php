@@ -59,8 +59,8 @@
         @foreach($tasks as $task)
         <tr>
             <td>{{ $task->start_date }}</td>
-            <td>{{ $task->description }}</td>
-            <td>{{ $formattedTime }}</td>
+            <td>{{ $task->title }}</td>
+            <td>{{ $task->formattedTimeSpent }}</td>
             <td>{{ strtoupper(substr($task->creator->first_name, 0, 1)) }}{{ strtoupper(substr($task->creator->last_name, 0, 1)) }}</td>
         </tr>
         @endforeach
