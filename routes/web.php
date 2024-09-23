@@ -45,6 +45,10 @@ use Spatie\Permission\Middlewares\PermissionMiddleware;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Config;
+use App\Http\Controllers\TaskController;
+
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -635,3 +639,5 @@ Route::middleware(['CheckInstallation'])->group(function () {
         });
     });
 });
+
+

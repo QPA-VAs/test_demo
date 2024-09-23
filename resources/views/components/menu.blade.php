@@ -119,6 +119,90 @@ $pendingLeaveRequestsCount = $query->count();
         @endif
 
 
+        @if ($user->can('manage_estimates_invoices') || $user->can('manage_expenses'))
+        <li class="menu-item {{ Request::is('estimates-invoices') || Request::is('estimates-invoices/*') || Request::is('taxes') || Request::is('payment-methods') || Request::is('payments') || Request::is('units') || Request::is('items') || Request::is('expenses') || Request::is('expenses/*') ? 'active open' : '' }}">
+            <a href="javascript:void(0)" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-box text-success"></i>
+                <?= get_label('finance', 'Finance') ?>
+            </a>
+            <ul class="menu-sub">
+                @if ($user->can('manage_expenses'))
+                <li class="menu-item {{ Request::is('expenses') || Request::is('expenses/*') ? 'active' : '' }}">
+                    <a href="/expenses" class="menu-link">
+                        <div><?= get_label('expenses', 'Expenses') ?></div>
+                    </a>
+                </li>
+                @endif
+
+                @if ($user->can('manage_payslips'))
+        <li class="menu-item {{ Request::is('payslips') || Request::is('payslips/*') || Request::is('allowances') || Request::is('deductions') ? 'active open' : '' }}">
+            <a href="javascript:void(0)" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-box text-warning"></i>
+                <?= get_label('payslips', 'Payslips') ?>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item {{ Request::is('payslips') || Request::is('payslips/*') ? 'active' : '' }}">
+                    <a href="/payslips" class="menu-link">
+                        <div><?= get_label('manage_payslips', 'Manage payslips') ?></div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ Request::is('allowances') ? 'active' : '' }}">
+                    <a href="/allowances" class="menu-link">
+                        <div><?= get_label('allowances', 'Allowances') ?></div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ Request::is('deductions') ? 'active' : '' }}">
+                    <a href="/deductions" class="menu-link">
+                        <div><?= get_label('deductions', 'Deductions') ?></div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        @endif
+
+                @if ($user->can('manage_estimates_invoices'))
+                <li class="menu-item {{ Request::is('estimates-invoices') || Request::is('estimates-invoices/*') ? 'active' : '' }}">
+                    <a href="/estimates-invoices" class="menu-link">
+                        <div><?= get_label('etimates_invoices', 'Estimates/Invoices') ?></div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ Request::is('payments') ? 'active' : '' }}">
+                    <a href="/payments" class="menu-link">
+                        <div><?= get_label('payments', 'Payments') ?></div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ Request::is('payment-methods') ? 'active' : '' }}">
+                    <a href="/payment-methods" class="menu-link">
+                        <div><?= get_label('payment_methods', 'Payment methods') ?></div>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ Request::is('taxes') ? 'active' : '' }}">
+                    <a href="/taxes" class="menu-link">
+                        <div><?= get_label('taxes', 'Taxes') ?></div>
+                    </a>
+                </li>
+                <li class="menu-item {{ Request::is('units') ? 'active' : '' }}">
+                    <a href="/units" class="menu-link">
+                        <div><?= get_label('units', 'Units') ?></div>
+                    </a>
+                </li>
+                <li class="menu-item {{ Request::is('items') ? 'active' : '' }}">
+                    <a href="/items" class="menu-link">
+                        <div><?= get_label('items', 'Items') ?></div>
+                    </a>
+                </li>
+                @endif
+            </ul>
+        </li>
+        @endif
+
+
+
 
         <li class="menu-item {{ Request::is('notes') || Request::is('notes/*') ? 'active' : '' }}">
             <a href="/notes" class="menu-link">

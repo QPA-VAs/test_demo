@@ -38,6 +38,7 @@
                                 <th data-field="role"><?= get_label('role', 'Role') ?></th>
                                 <th data-field="phone" data-sortable="true"><?= get_label('phone_number', 'Phone number') ?></th>
                                 <th data-formatter="assignedFormatter"><?= get_label('assigned', 'Assigned') ?></th>
+                                <th data-field="timeSpent"><?= get_label('timeSpent', 'Time Spent') ?></th>
                                 <th data-sortable="true" data-field="created_at" data-visible="false"><?= get_label('created_at', 'Created at') ?></th>
                                 <th data-sortable="true" data-field="updated_at" data-visible="false"><?= get_label('updated_at', 'Updated at') ?></th>
                                 <th data-formatter="actionFormatter"><?= get_label('actions', 'Actions') ?></th>

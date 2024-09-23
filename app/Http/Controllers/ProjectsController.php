@@ -74,7 +74,16 @@ class ProjectsController extends Controller
                 $q->whereIn('tags.id', $selectedTags);
             });
         }
+           $projects = $projects->with(['tasks' => function($query) {
+            $query->selectRaw('project_id, SUM(time_spent) as total_time_spent')->groupBy('project_id');
+        }]);
         $projects = $projects->orderBy($sort, $order)->paginate(6);
+         return view('projects.grid_view', [
+            'projects' => $projects,
+            'auth_user' => $this->user,
+            'selectedTags' => $selectedTags,
+            'is_favorite' => $is_favorite
+        ]);
         return view('projects.grid_view', ['projects' => $projects, 'auth_user' => $this->user, 'selectedTags' => $selectedTags, 'is_favorite' => $is_favorite]);
     }
 
@@ -113,7 +122,7 @@ class ProjectsController extends Controller
     {
         $formFields = $request->validate([
             'title' => ['required'],
-            'status_id' => ['required'],
+            // 'status_id' => ['required'],
             'start_date' => ['required', 'before_or_equal:end_date'],
             'end_date' => ['required'],
             'budget' => ['nullable', 'regex:/^\d+(\.\d+)?$/'],
@@ -193,7 +202,7 @@ class ProjectsController extends Controller
     {
         $formFields = $request->validate([
             'title' => ['required'],
-            'status_id' => ['required'],
+            'status_id' => ['nullable'],
             'budget' => ['nullable', 'regex:/^\d+(\.\d+)?$/'],
             'start_date' => ['required', 'before_or_equal:end_date'],
             'end_date' => ['required'],
