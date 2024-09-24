@@ -71,13 +71,22 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="mb-3 col-md-6">
-                        <label class="form-label" for="start_date"><?= get_label('starts_at', 'Starts at') ?> <span class="asterisk">*</span></label>
-                        <input type="text" id="start_date" name="start_date" class="form-control" value="">
-                        @error('start_date')
-                        <p class="text-danger text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+    <div class="mb-3 col-md-6">
+        <label class="form-label" for="start_date">
+            <?= get_label('starts_at', 'Starts at') ?> <span class="asterisk">*</span>
+        </label>
+
+        <!-- Display the current date as plain text -->
+        <p class="form-control-plaintext">{{ $currentDate }}</p>
+
+        <!-- Hidden input to submit the current date -->
+        <input type="hidden" id="start_date" name="start_date" value="{{ $currentDate }}">
+        
+        @error('start_date')
+        <p class="text-danger text-xs mt-1">{{ $message }}</p>
+        @enderror
+    </div>
+
                     <div class="mb-3 col-md-6">
                         <label class="form-label" for="due_date"><?= get_label('time_spent', 'Time spent') ?> <span class="asterisk">*</span></label>
                         <input type="number" id="time_spent" name="time_spent" class="form-control" value="">
@@ -124,19 +133,26 @@
 
 
                 <div class="row">
-                    <div class="mb-3">
-                        <label class="form-label" for="user_id"><?= get_label('select_va', 'Select VA') ?> <?php if (!empty($project_id)) { ?> (<?= get_label('users_associated_with_project', 'Users associated with project') ?> <b>{{$project->title}}</b>)
+    <div class="mb-3">
+        <label class="form-label" for="user_id">
+            <?= get_label('select_va', 'Select VA') ?> 
+            <?php if (!empty($project_id)) { ?> 
+                (<?= get_label('users_associated_with_project', 'Users associated with project') ?> <b>{{$project->title}}</b>)
+            <?php } ?>
+        </label>
+        <div class="input-group">
+            <select id="user_id" class="form-control js-example-basic-multiple" name="user_id[]" multiple data-placeholder="<?= get_label('type_to_search', 'Type to search') ?>">
+                @foreach($users as $user)
+                    <option value="{{ $user->id }}" {{ $user->id == $loggedInUserId ? 'selected' : '' }}>
+                        {{ $user->first_name }} {{ $user->last_name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+    </div>
+</div>
 
-                            <?php } ?></label>
-                        <div class="input-group">
-                            <select id="" class="form-control js-example-basic-multiple" name="user_id[]"  data-placeholder="<?= get_label('type_to_search', 'Type to search') ?>">
-                                @foreach($users as $user)
-                                <option value="{{$user->id}}" {{ (collect(old('user_id'))->contains($user->id)) ? 'selected':'' }}>{{$user->first_name}} {{$user->last_name}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                </div>
+
 
 
 

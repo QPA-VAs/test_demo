@@ -21,6 +21,7 @@ use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Request as FacadesRequest;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Exception;
+use Carbon\Carbon;
 
 class TasksController extends Controller
 {
@@ -65,6 +66,8 @@ class TasksController extends Controller
     {
         $project = (object)[];
         $projects = [];
+        $currentDate = Carbon::now()->toDateString(); // Get current date in 'YYYY-MM-DD' format
+    
         if ($id) {
             $project = Project::find($id);
             $users = $project->users;
@@ -72,7 +75,15 @@ class TasksController extends Controller
             $projects = $this->workspace->projects;
             $users = $this->workspace->users;
         }
-        return view('tasks.create_task', ['project' => $project, 'projects' => $projects, 'users' => $users]);
+        $loggedInUserId = auth()->id(); // Get the logged-in user ID
+
+        return view('tasks.create_task', [
+            'project' => $project, 
+            'projects' => $projects, 
+            'users' => $users,
+            'currentDate' => $currentDate, // Passing the current date to the view
+            'loggedInUserId' => $loggedInUserId // Make sure to pass this variable to the view
+        ]);
     }
 
     /**

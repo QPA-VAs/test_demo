@@ -182,11 +182,10 @@ class ClientController extends Controller
         $formFields = $request->validate([
             'first_name' => 'required',
             'last_name' => 'required',
-            'business_name' => 'nullable',
+            'company' => 'nullable',
             'phone' => 'required',
             'email' => [
-                'required',
-                Rule::unique('clients')->ignore($id),
+                'required'
             ],
             'address' => 'required',
             'city' => 'required',

@@ -11,6 +11,7 @@ use App\Models\Workspace;
 use Illuminate\Http\Request;
 use App\Services\DeletionService;
 use GuzzleHttp\Promise\TaskQueue;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Events\Registered;
@@ -312,6 +313,11 @@ class UserController extends Controller
 
         return view('users.user_profile', ['user' => $user, 'projects' => $projects, 'tasks' => $tasks, 'users' => $users, 'clients' => $clients, 'auth_user' => getAuthenticatedUser()]);
     }
+    
+        public function format_time($seconds)
+    {
+        return sprintf("%02d%s%02d%s%02d", floor($seconds / 3600), ':', ($seconds / 60) % 60, ':', $seconds % 60);
+    }
 
     public function list()
     {
@@ -347,6 +353,7 @@ class UserController extends Controller
                 'status' => $user->status,
                 'created_at' => format_date($user->created_at, 'H:i:s'),
                 'updated_at' => format_date($user->updated_at, 'H:i:s'),
+                'timeSpent' => $this->format_time($user->tasks()->sum(DB::raw("TIME_TO_SEC(time_spent)"))),
             ]);
 
         return response()->json([
