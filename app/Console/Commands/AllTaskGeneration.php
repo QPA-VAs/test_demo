@@ -39,9 +39,10 @@ class AllTaskGeneration extends Command
         $endDate = Carbon::now()->startOfWeek();
 
         // Fetch all tasks created last week
-        $tasks = \App\Models\Task::whereBetween('created_at', ['2024-07-07  ', '2024-09-22'])
+        $tasks = \App\Models\Task::whereBetween('created_at', [$startDate, $endDate])
             ->with('creator') // Load the creator relationship
             ->get();
+            Log::info('Current Date and Time: ' . Carbon::now());
 
         if ($tasks->isEmpty()) {
             Log::info('No tasks found for the specified date range.');
@@ -92,13 +93,13 @@ class AllTaskGeneration extends Command
         Storage::put('backups/' . $fileName, $pdfContent);
 
         // Send the PDF as an email to the admin
-        $adminEmail = \App\Models\User::where('last_name', 'Bawuah')->value('email');
+        $adminEmail = \App\Models\User::where('last_name', 'Neal')->value('email');
 
         Mail::send([], [], function ($message) use ($adminEmail, $fileName) {
             $message->to($adminEmail)
                 ->subject('Weekly Task Report')
                 ->attach(storage_path('app/backups/' . $fileName))
-                ->from('info@qpas.co.uk', ' Bawuah') // Specify your from email and name
+                ->from('baidooprince48@gmail.com', ' Neal') // Specify your from email and name
                 ->html('Please find attached the backup weekly task report.'); // Set the body text as HTML
         });
 
