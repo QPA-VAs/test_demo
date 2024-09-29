@@ -63,28 +63,54 @@ class TasksController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create($id = '')
-    {
-        $project = (object)[];
-        $projects = [];
-        $currentDate = Carbon::now()->toDateString(); // Get current date in 'YYYY-MM-DD' format
-    
-        if ($id) {
-            $project = Project::find($id);
-            $users = $project->users;
-        } else {
-            $projects = $this->workspace->projects;
-            $users = $this->workspace->users;
-        }
-        $loggedInUserId = auth()->id(); // Get the logged-in user ID
+{
+    $project = (object)[];
+    $projects = [];
+    $currentDate = Carbon::now()->toDateString(); // Get current date in 'YYYY-MM-DD' format
 
-        return view('tasks.create_task', [
-            'project' => $project, 
-            'projects' => $projects, 
-            'users' => $users,
-            'currentDate' => $currentDate, // Passing the current date to the view
-            'loggedInUserId' => $loggedInUserId // Make sure to pass this variable to the view
-        ]);
+    // Check if project ID is provided, and retrieve project data accordingly
+    if ($id) {
+        $project = Project::find($id);
+        $users = $project->users;
+    } else {
+        // If no specific project is being worked on, get all workspace projects and users
+        $projects = $this->workspace->projects;
+        $users = $this->workspace->users;
     }
+
+    $loggedInUserId = auth()->id(); // Get the logged-in user ID
+
+    // Get the current time
+    $currentTime = Carbon::now();
+
+    // Define the start and end times for disabling the button
+    $sundayEnd = Carbon::now()->next(Carbon::SUNDAY)->setTime(23, 0, 0); // 11:00 PM on Sunday
+    $mondayStart = $sundayEnd->copy()->addDay(); // 12:00 AM on Monday
+    $mondayEnd = Carbon::now()->next(Carbon::MONDAY)->setTime(9, 0, 0); // 9:00 AM on Monday
+
+    // Log the current time and defined times
+    \Log::info('Current Time: ' . $currentTime);
+    \Log::info('Sunday End: ' . $sundayEnd);
+    \Log::info('Monday Start: ' . $mondayStart);
+    \Log::info('Monday End: ' . $mondayEnd);
+
+    // Determine if the button should be disabled
+    $isDisabled = ($currentTime->greaterThanOrEqualTo($sundayEnd) && $currentTime->lessThan($mondayEnd));
+
+    // Log the value of isDisabled
+    \Log::info('Is Disabled: ' . ($isDisabled ? 'true' : 'false'));
+
+    // Return the view with all necessary data
+    return view('tasks.create_task', [
+        'project' => $project, 
+        'projects' => $projects, 
+        'users' => $users,
+        'currentDate' => $currentDate,  // Passing the current date to the view
+        'loggedInUserId' => $loggedInUserId, // Passing the logged-in user ID to the view
+        'isDisabled' => $isDisabled      // Pass whether the button should be disabled
+    ]);
+}
+
 
     /**
      * Store a newly created resource in storage.

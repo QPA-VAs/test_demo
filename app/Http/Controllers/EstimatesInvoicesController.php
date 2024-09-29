@@ -61,7 +61,7 @@ class EstimatesInvoicesController extends Controller
             'state' => 'required',
             'country' => 'required',
             'zip_code' => 'required',
-            'phone' => 'required',
+            'phone' => 'nullable',
             'note' => 'nullable',
             'from_date' => ['required', 'before_or_equal:to_date'],
             'to_date' => 'required',

@@ -155,9 +155,13 @@
 
 
 
+<div class="mt-2">
+    <button type="submit" class="btn btn-primary me-2" id="submit_btn" 
+        {{ $isDisabled ? 'disabled' : '' }}>
+        <?= get_label('create', 'Create') ?>
+    </button>
 
-                <div class="mt-2">
-                    <button type="submit" class="btn btn-primary me-2" id="submit_btn"><?= get_label('create', 'Create') ?></button>
+
                     <button type="reset" class="btn btn-outline-secondary"><?= get_label('cancel', 'Cancel') ?></button>
                 </div>
             </form>
@@ -166,3 +170,4 @@
 </div>
 
 @endsection
+

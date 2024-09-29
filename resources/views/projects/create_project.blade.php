@@ -30,8 +30,8 @@
                 @csrf
                 <div class="row">
                     <div class="mb-3 col-md-12">
-                        <label for="title" class="form-label"><?= get_label('title', 'Title') ?> <span class="asterisk">*</span></label>
-                        <input class="form-control" type="text" id="title" name="title" placeholder="<?= get_label('please_enter_title', 'Please enter title') ?>" value="{{ old('title') }}">
+                        <label for="title" class="form-label"><?= get_label('project / business title', 'Project / Business title') ?> <span class="asterisk">*</span></label>
+                        <input class="form-control" type="text" id="title" name="title" placeholder="<?= get_label('project / business title', 'project / business title') ?>" value="{{ old('title') }}">
                         @error('title')
                         <p class="text-danger text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -39,26 +39,23 @@
                 </div>
                 <div class="row">
                     <div class="mb-3 col-md-6">
-                        <label for="budget" class="form-label"><?= get_label('budget', 'Budget') ?></label>
+                        <label for="budget" class="form-label"><?= get_label('Cost', 'Cost') ?></label>
                         <div class="input-group input-group-merge">
                             <span class="input-group-text">{{$general_settings['currency_symbol']}}</span>
-                            <input class="form-control" type="text" id="budget" name="budget" placeholder="<?= get_label('please_enter_budget', 'Please enter budget') ?>" value="{{ old('budget') }}">
+                            <input class="form-control" type="text" id="budget" name="budget" placeholder="<?= get_label('please_enter_cost', 'Please enter cost') ?>" value="{{ old('budget') }}">
                         </div>
                         <p class="text-danger text-xs mt-1 error-message"></p>
                     </div>
                     <div class="mb-3 col-md-6">
-                        <label class="form-label" for="start_date"><?= get_label('starts_at', 'Starts at') ?> <span class="asterisk">*</span></label>
-                        <input type="text" id="start_date" name="start_date" class="form-control" value="">
-                        @error('start_date')
-                        <p class="text-danger text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div class="mb-3 col-md-6">
-                        <label class="form-label" for="end_date"><?= get_label('ends_at', 'Ends at') ?> <span class="asterisk">*</span></label>
-                        <input type="text" id="end_date" name="end_date" class="form-control" value="">
-                        @error('end_date')
-                        <p class="text-danger text-xs mt-1">{{ $message }}</p>
-                        @enderror
+                    <label for="package_type" class="form-label"><?= get_label('Package Type', 'Package Type') ?></label>
+        <div class="input-group input-group-merge">
+            <select class="form-control" id="package_type" name="package_type">
+                <option value=""><?= get_label('please_select_package_type', 'Please select package type') ?></option>
+                <option value="hourly" {{ old('package_type') == 'hourly' ? 'selected' : '' }}><?= get_label('hourly', 'Hourly') ?></option>
+                <option value="fixed" {{ old('package_type') == 'fixed' ? 'selected' : '' }}><?= get_label('fixed', 'Fixed') ?></option>
+            </select>
+        </div>
+        <p class="text-danger text-xs mt-1 error-message"></p>
                     </div>
                 </div>
 
@@ -79,12 +76,19 @@
                     <div class="mb-3">
                         <label class="form-label" for="client_id"><?= get_label('select_clients', 'Select clients') ?></label>
                         <div class="input-group">
-                            <select id="" class="form-control js-example-basic-multiple" name="client_id[]" multiple="multiple" data-placeholder="<?= get_label('type_to_search', 'Type to search') ?>">
-                                @foreach ($clients as $client)
-                                <?php $selected = $client->id == getAuthenticatedUser()->id && $auth_user->hasRole('client') ? "selected" : "" ?>
-                                <option value="{{$client->id}}" {{ (collect(old('client_id'))->contains($client->id)) ? 'selected':'' }} <?= $selected ?>>{{$client->first_name}} {{$client->last_name}}</option>
-                                @endforeach
-                            </select>
+                        <select id="client_id" class="form-control js-example-basic-single" name="client_id" data-placeholder="<?= get_label('type_to_search', 'Type to search') ?>">
+    @foreach ($clients as $client)
+        <?php 
+            $selected = (old('client_id') == $client->id) ? 'selected' : ''; 
+            // Check if the current user is authenticated and a client
+            if (getAuthenticatedUser()->id == $client->id && $auth_user->hasRole('client')) {
+                $selected = 'selected';
+            }
+        ?>
+        <option value="{{ $client->id }}" {{ $selected }}>{{ $client->first_name }} {{ $client->last_name }}</option>
+    @endforeach
+</select>
+
 
                         </div>
                     </div>

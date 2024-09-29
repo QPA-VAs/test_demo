@@ -114,16 +114,18 @@ class ProjectsController extends Controller
         $formFields = $request->validate([
             'title' => ['required'],
 //            'status_id' => ['required'],
-            'start_date' => ['required', 'before_or_equal:end_date'],
-            'end_date' => ['required'],
+            // 'start_date' => ['nullable', 'before_or_equal:end_date'],
+            // 'end_date' => ['nullable'],
             'budget' => ['nullable', 'regex:/^\d+(\.\d+)?$/'],
             'description' => ['required'],
+            'package_type' => ['required', 'string'],
         ]);
 
-        $start_date = $request->input('start_date');
-        $end_date = $request->input('end_date');
-        $formFields['start_date'] = format_date($start_date, null, "Y-m-d");
-        $formFields['end_date'] = format_date($end_date, null, "Y-m-d");
+        // $start_date = $request->input('start_date');
+        // $end_date = $request->input('end_date');
+        // $formFields['start_date'] = format_date($start_date, null, "Y-m-d");
+        // $formFields['end_date'] = format_date($end_date, null, "Y-m-d");
+        $formFields['package_type'] = $request->input('package_type'); 
 
         $formFields['workspace_id'] = $this->workspace->id;
         $formFields['created_by'] = $this->user->id;
@@ -195,8 +197,8 @@ class ProjectsController extends Controller
             'title' => ['required'],
             'status_id' => ['required'],
             'budget' => ['nullable', 'regex:/^\d+(\.\d+)?$/'],
-            'start_date' => ['required', 'before_or_equal:end_date'],
-            'end_date' => ['required'],
+            'start_date' => ['nullable', 'before_or_equal:end_date'],
+            'end_date' => ['nullable'],
             'description' => ['required'],
         ]);
 
@@ -562,8 +564,8 @@ class ProjectsController extends Controller
             'project_id' => ['required'],
             'title' => ['required'],
             'status' => ['required'],
-            'start_date' => ['required', 'before_or_equal:end_date'],
-            'end_date' => ['required'],
+            'start_date' => ['nullable', 'before_or_equal:end_date'],
+            'end_date' => ['nullable'],
             'cost' => ['required', 'regex:/^\d+(\.\d+)?$/'],
             'description' => ['nullable'],
         ]);
@@ -679,8 +681,8 @@ class ProjectsController extends Controller
         $formFields = $request->validate([
             'title' => ['required'],
             'status' => ['required'],
-            'start_date' => ['required', 'before_or_equal:end_date'],
-            'end_date' => ['required'],
+            'start_date' => ['nullable', 'before_or_equal:end_date'],
+            'end_date' => ['nullable'],
             'cost' => ['required', 'regex:/^\d+(\.\d+)?$/'],
             'progress' => ['required'],
             'description' => ['nullable'],
