@@ -32,7 +32,7 @@ class ClientController extends Controller
         $workspace = Workspace::find(session()->get('workspace_id'));
         $clients = $workspace->clients ?? [];
         if (Auth::user()->roles->pluck('name')->contains('member')) {
-           
+
             return view('clients.emp_clients', ['clients' => $clients]);
         }
 

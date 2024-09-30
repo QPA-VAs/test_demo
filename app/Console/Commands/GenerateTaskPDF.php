@@ -41,18 +41,17 @@ class GenerateTaskPDF extends Command
         $endDate = Carbon::now()->startOfWeek();
         $clients = \App\Models\Client::all();
 
-        $adminEmail = \App\Models\User::where('last_name', 'Neal')->value('email');
+        $adminEmail = \App\Models\User::where('last_name', 'pepos')->value('email');
 
         $pdfAttachments = [];
 
         foreach ($clients as $client) {
-            $project = (object)[];
 
             $tasks = \App\Models\Task::whereHas('project.clients', function ($query) use ($client) {
                 $query->where('clients.id', $client->id);
             })
                 ->whereBetween('created_at', [$startDate, $endDate]) // Filter tasks by creation date
-                ->with('creator') // Load the creator relationship
+                ->with('creator','project') // Load the creator relationship
                 ->get();
 
             if ($tasks->isEmpty()) {
@@ -62,6 +61,7 @@ class GenerateTaskPDF extends Command
             // Calculate total time spent and prepare task data
             $totalTimeSpent = 0;
             $taskData = $tasks->map(function ($task) use (&$totalTimeSpent) {
+
                 // Split the time spent into hours and minutes
                 $parts = explode(':', $task->time_spent);
                 $hours = (int)$parts[0];
@@ -84,10 +84,8 @@ class GenerateTaskPDF extends Command
 
                 // Add formatted time to task
                 $task->formattedTimeSpent = $formattedTime;
-
                 return $task;
             });
-
             // Convert total minutes back to hours and minutes format
             $totalHours = floor($totalTimeSpent / 60);
             $totalMinutes = $totalTimeSpent % 60;
@@ -104,8 +102,12 @@ class GenerateTaskPDF extends Command
                 return $task->creator->first_name . ' ' . $task->creator->last_name;
             })->unique()->toArray();
 
+            // Extract the names of the creators
+            $projects = $tasks->map(function ($task) {
+                return $task->project->title;
+            })->unique()->toArray();
             // Pass data to the view
-            $html = view('tasks.pdf', ['tasks' => $taskData, 'client' => $client, 'project' => $project, 'formattedTotalTime' => $formattedTotalTime, 'creators' => $creators])->render();
+            $html = view('tasks.pdf', ['tasks' => $taskData, 'client' => $client,'project'=>$projects, 'formattedTotalTime' => $formattedTotalTime, 'creators' => $creators])->render();
 
             $dompdf = new Dompdf();
             $dompdf->loadHtml($html);
