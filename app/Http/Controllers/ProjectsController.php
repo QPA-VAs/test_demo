@@ -116,17 +116,20 @@ class ProjectsController extends Controller
 //            'status_id' => ['required'],
             // 'start_date' => ['nullable', 'before_or_equal:end_date'],
             // 'end_date' => ['nullable'],
-            'budget' => ['nullable', 'regex:/^\d+(\.\d+)?$/'],
             'description' => ['required'],
-            'package_type' => ['required', 'string'],
+            'package' => ['required', 'string'],
         ]);
 
         // $start_date = $request->input('start_date');
         // $end_date = $request->input('end_date');
         // $formFields['start_date'] = format_date($start_date, null, "Y-m-d");
         // $formFields['end_date'] = format_date($end_date, null, "Y-m-d");
-        $formFields['package_type'] = $request->input('package_type'); 
+        $formFields['package'] = $request->input('package'); 
+        // $formFields['hourly'] = $request->input('hourly'); 
+      
+$formFields['hourly'] = date('H:i:s', strtotime($request->input('hourly')));
 
+        
         $formFields['workspace_id'] = $this->workspace->id;
         $formFields['created_by'] = $this->user->id;
 
@@ -195,17 +198,23 @@ class ProjectsController extends Controller
     {
         $formFields = $request->validate([
             'title' => ['required'],
-            'status_id' => ['required'],
-            'budget' => ['nullable', 'regex:/^\d+(\.\d+)?$/'],
-            'start_date' => ['nullable', 'before_or_equal:end_date'],
-            'end_date' => ['nullable'],
+            // 'status_id' => ['required'],
+            // 'hourly' => ['nullable'],
+            // 'start_date' => ['nullable', 'before_or_equal:end_date'],
+            // 'end_date' => ['nullable'],
             'description' => ['required'],
+
         ]);
 
-        $start_date = $request->input('start_date');
-        $end_date = $request->input('end_date');
-        $formFields['start_date'] = format_date($start_date, null, "Y-m-d");
-        $formFields['end_date'] = format_date($end_date, null, "Y-m-d");
+        // $start_date = $request->input('start_date');
+        // $end_date = $request->input('end_date');
+        // $formFields['start_date'] = format_date($start_date, null, "Y-m-d");
+        // $formFields['end_date'] = format_date($end_date, null, "Y-m-d");
+
+        $formFields['package'] = $request->input('package'); 
+      
+      
+$formFields['hourly'] = date('H:i:s', strtotime($request->input('hourly')));
 
         $userIds = $request->input('user_id') ?? [];
         $clientIds = $request->input('client_id') ?? [];
@@ -566,7 +575,7 @@ class ProjectsController extends Controller
             'status' => ['required'],
             'start_date' => ['nullable', 'before_or_equal:end_date'],
             'end_date' => ['nullable'],
-            'cost' => ['required', 'regex:/^\d+(\.\d+)?$/'],
+            'hourly' => ['required', 'regex:/^\d+(\.\d+)?$/'],
             'description' => ['nullable'],
         ]);
 
@@ -600,7 +609,7 @@ class ProjectsController extends Controller
             $milestones = $milestones->where(function ($query) use ($search) {
                 $query->where('title', 'like', '%' . $search . '%')
                     ->orWhere('id', 'like', '%' . $search . '%')
-                    ->orWhere('cost', 'like', '%' . $search . '%')
+                    ->orWhere('hourly', 'like', '%' . $search . '%')
                     ->orWhere('description', 'like', '%' . $search . '%');
             });
         }
@@ -652,7 +661,7 @@ class ProjectsController extends Controller
                     'title' => $milestone->title,
                     'status' => $statusBadge,
                     'progress' => $progress,
-                    'cost' => format_currency($milestone->cost),
+                    'hourly' => format_currency($milestone->hourly),
                     'start_date' => format_date($milestone->start_date),
                     'end_date' => format_date($milestone->end_date),
                     'created_by' => $creator,
@@ -683,7 +692,7 @@ class ProjectsController extends Controller
             'status' => ['required'],
             'start_date' => ['nullable', 'before_or_equal:end_date'],
             'end_date' => ['nullable'],
-            'cost' => ['required', 'regex:/^\d+(\.\d+)?$/'],
+            'hourly' => ['required', 'regex:/^\d+(\.\d+)?$/'],
             'progress' => ['required'],
             'description' => ['nullable'],
         ]);

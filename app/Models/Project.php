@@ -15,7 +15,7 @@ class Project extends Model implements HasMedia
     protected $fillable = [
         'title',
         'status_id',
-        'budget',
+        'hourly',
         'start_date',
         'end_date',
         'description',
@@ -23,6 +23,7 @@ class Project extends Model implements HasMedia
         'client_id',
         'workspace_id',
         'created_by',
+        'package',
     ];
 
     public function registerMediaCollections(): void

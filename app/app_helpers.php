@@ -586,7 +586,7 @@ if (!function_exists('getControllerNames')) {
             // Determine the appropriate separators based on the currency format
             $thousands_separator = ($currency_format == 'comma_separated') ? ',' : '.';
             // Format the amount with the determined separators
-            $formatted_amount = number_format($amount, $decimal_points, '.', $thousands_separator);
+            $formatted_amount = number_format((int)$amount, $decimal_points, '.', $thousands_separator);
             if ($is_currency_symbol) {
                 // Format currency symbol position
                 if ($currency_symbol_position === 'before') {

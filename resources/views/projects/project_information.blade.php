@@ -94,16 +94,16 @@
                                             <i class="menu-icon tf-iconsbx bx bx-calendar-check bx-md text-success"></i>
                                         </div>
                                     </div>
-                                    <span class="fw-semibold d-block mb-1"><?= get_label('starts_at', 'Starts at') ?></span>
-                                    <h3 class="card-title mb-2">{{ format_date($project->start_date) }}</h3>
+                                    <span class="fw-semibold d-block mb-1"><?= get_label('package', 'Package Type') ?></span>
+                                    <h3 class="card-title mb-2">{{($project->package) }}</h3>
                                 </div>
                             </div>
-                            @php
+                            <!-- @php
                             use Carbon\Carbon;
                             $fromDate = Carbon::parse($project->from_date);
                             $toDate = Carbon::parse($project->to_date);
                             $duration = $fromDate->diffInDays($toDate) + 1;
-                            @endphp
+                            @endphp -->
                             <div class="card mt-4">
                                 <div class="card-body">
                                     <div class="card-title d-flex align-items-start justify-content-between">
@@ -118,18 +118,19 @@
                         </div>
 
                         <div class="col-lg-4 col-md-12 col-6 mb-4">
-                            <div class="card mt-4">
-                                <div class="card-body">
-                                    <div class="card-title d-flex align-items-start justify-content-between">
-                                        <div class="avatar flex-shrink-0">
-                                            <i class="menu-icon tf-icons bx bx-purchase-tag-alt bx-md text-warning"></i>
-                                        </div>
-                                    </div>
-                                    <span class="fw-semibold d-block mb-1"><?= get_label('budget', 'Estimated Cost') ?></span>
-                                    <h3 class="card-title mb-2">{{ !empty($project->budget) ? format_currency($project->budget) : '-' }}</h3>
-                                </div>
-                            </div>
-                        </div>
+    <div class="card mt-4">
+        <div class="card-body">
+            <div class="card-title d-flex align-items-start justify-content-between">
+                <div class="avatar flex-shrink-0">
+                    <i class="menu-icon tf-icons bx bx-time bx-md text-warning"></i> 
+                </div>
+            </div>
+            <span class="fw-semibold d-block mb-1"><?= get_label('Hours Booked', 'Hours Booked') ?></span>
+            <h3 class="card-title mb-2">{{ \Carbon\Carbon::createFromFormat('H:i:s', $project->hourly)->format('H:i') }}
+</h3>
+        </div>
+    </div>
+</div>
                         <div class="col-md-12 mb-4">
                             <div class="card">
                                 <div class="card-body">

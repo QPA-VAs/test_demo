@@ -40,8 +40,8 @@
                 @method('PUT')
                 <div class="row">
                     <div class="mb-3">
-                        <label for="title" class="form-label"><?= get_label('title', 'Title') ?> <span class="asterisk">*</span></label>
-                        <input class="form-control" type="text" id="title" name="title" placeholder="<?= get_label('please_enter_title', 'Please enter title') ?>" value="{{ $project->title }}">
+                        <label for="title" class="form-label"><?= get_label('project / business title', 'Project / Business title') ?> <span class="asterisk">*</span></label>
+                        <input class="form-control" type="text" id="title" name="title" placeholder="<?= get_label('project / business title', 'project / business title') ?>" value="{{ $project->title }}">
                         @error('title')
                         <p class="text-danger text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -49,27 +49,23 @@
                 </div>
                 <div class="row">
                     <div class="mb-3 col-md-6">
-                        <label for="budget" class="form-label"><?= get_label('budget', 'Budget') ?></label>
+                        <label for="hourly" class="form-label"><?= get_label('hourly', 'hourly') ?></label>
                         <div class="input-group input-group-merge">
-                            <span class="input-group-text">{{$general_settings['currency_symbol']}}</span>
-                            <input class="form-control" type="text" id="budget" name="budget" placeholder="<?= get_label('please_enter_budget', 'Please enter budget') ?>" value="{{ $project->budget??'' }}">
+                        <span class="input-group-text">hrs</span>
+                            <input class="form-control" type="text" id="hourly" name="hourly" placeholder="<?= get_label('please_enter_hourly', 'Please enter hourly') ?>" value="{{ $project->budget??'' }}">
                         </div>
                         <p class="text-danger text-xs mt-1 error-message"></p>
                     </div>
                     <div class="mb-3 col-md-6">
-                        <label class="form-label" for="start_date"><?= get_label('starts_at', 'Starts at') ?> <span class="asterisk">*</span></label>
-                        <input type="text" name="start_date" id="start_date" class="form-control" value="{{ format_date($project->start_date)}}">
-                        @error('start_date')
-                        <p class="text-danger text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div class="mb-3 col-md-6">
-                        <label class="form-label" for="end_date"><?= get_label('ends_at', 'Ends at') ?> <span class="asterisk">*</span></label>
-                        <input type="text" id="end_date" name="end_date" class="form-control" value="{{ format_date($project->end_date)}}">
-                        @error('end_date')
-                        <p class="text-danger text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+                        <label for="package_type"  class="form-label"><?= get_label('Package Type', 'Package Type') ?><span class="text-danger">*</span></label>
+                        <div class="input-group input-group-merge">
+            <select class="form-control" id="package" name="package">
+                <option value=""><?= get_label('please_select_package_type', 'Please select package type') ?></option>
+                <option value="hourly"><?= get_label('hourly', 'Hourly') ?></option>
+                <option value="fixed"> <?= get_label('fixed', 'Fixed') ?></option>
+            </select>
+        </div>
+                    
                 </div>
 
                 <div class="row">
@@ -94,7 +90,7 @@
                     <div class="mb-3">
                         <label class="form-label" for="client_id"><?= get_label('select_clients', 'Select clients') ?></label>
                         <div class="input-group">
-                            <select id="" class="form-control js-example-basic-multiple" name="client_id[]" multiple="multiple" data-placeholder="<?= get_label('type_to_search', 'Type to search') ?>">
+                            <select id="" class="form-control js-example-basic-single" name="client_id" data-placeholder="<?= get_label('type_to_search', 'Type to search') ?>">
                                 <?php
                                 $project_clients = $project->clients;
                                 ?>

@@ -146,6 +146,37 @@ class TasksController extends Controller
         $formFields['created_by'] = $this->user->id;
 
         $formFields['project_id'] = $project_id;
+
+        // Fetch the project to check the hourly field
+    $project = Project::find($project_id); // Assuming you have a Project model
+
+    if ($project && !is_null($project->hourly)) {
+        // Convert hourly (assumed to be in HH:MM:SS format) to total minutes
+        $hourly_parts = explode(':', $project->hourly);
+        $hourly_minutes = ($hourly_parts[0] * 60) + $hourly_parts[1];
+
+        // Convert time_spent (HH:MM:SS) to total minutes
+        $spent_parts = explode(':', $time_formatted);
+        $spent_minutes = ($spent_parts[0] * 60) + $spent_parts[1];
+
+        // Deduct time_spent from hourly
+        $new_hourly_minutes = $hourly_minutes - $spent_minutes;
+
+        // Ensure new_hourly_minutes doesn't go negative
+        if ($new_hourly_minutes < 0) {
+            $new_hourly_minutes = 0; // Set to 0 or handle as needed
+        }
+
+        // Convert back to HH:MM:SS format
+        $new_hours = floor($new_hourly_minutes / 60);
+        $new_minutes = $new_hourly_minutes % 60;
+        $project->hourly = sprintf("%02d:%02d:00", $new_hours, $new_minutes);
+
+        // Save the updated project
+        $project->save();
+    }
+
+
         $userIds = $request->input('user_id');
 
         $new_task = Task::create($formFields);
@@ -155,6 +186,8 @@ class TasksController extends Controller
 
         Session::flash('message', 'Task created successfully.');
         return response()->json(['error' => false, 'id' => $new_task->id]);
+
+
     }
 
     /**
