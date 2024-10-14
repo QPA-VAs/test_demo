@@ -145,38 +145,35 @@ class TasksController extends Controller
         $formFields['workspace_id'] = $this->workspace->id;
         $formFields['created_by'] = $this->user->id;
 
-        $formFields['project_id'] = $project_id;
+      // Retrieve the project object using the project ID
+$project = Project::find($project_id);
 
-        // Fetch the project to check the hourly field
-    $project = Project::find($project_id); // Assuming you have a Project model
+$formFields['project_id'] = $project_id;
 
-    if ($project && !is_null($project->hourly)) {
-        // Convert hourly (assumed to be in HH:MM:SS format) to total minutes
-        $hourly_parts = explode(':', $project->hourly);
-        $hourly_minutes = ($hourly_parts[0] * 60) + $hourly_parts[1];
+if ($project && !is_null($project->hourly)) {
+    // Convert hourly (assumed to be in HH:MM:SS format) to total minutes
+    $hourly_parts = explode(':', $project->hourly);
+    $hourly_minutes = ($hourly_parts[0] * 60) + $hourly_parts[1];
 
-        // Convert time_spent (HH:MM:SS) to total minutes
-        $spent_parts = explode(':', $time_formatted);
-        $spent_minutes = ($spent_parts[0] * 60) + $spent_parts[1];
+    // Convert time_spent (HH:MM:SS) to total minutes
+    $spent_parts = explode(':', $time_formatted);
+    $spent_minutes = ($spent_parts[0] * 60) + $spent_parts[1];
 
-        // Deduct time_spent from hourly
-        $new_hourly_minutes = $hourly_minutes - $spent_minutes;
+    // Deduct time_spent from hourly (allow negative result)
+    $new_hourly_minutes = $hourly_minutes - $spent_minutes;
 
-        // Ensure new_hourly_minutes doesn't go negative
-        if ($new_hourly_minutes < 0) {
-            $new_hourly_minutes = 0; // Set to 0 or handle as needed
-        }
+    // Convert back to HH:MM:SS format (this can be negative if time spent exceeds hourly)
+    $new_hours = floor(abs($new_hourly_minutes) / 60);
+    $new_minutes = abs($new_hourly_minutes) % 60;
+    $sign = $new_hourly_minutes < 0 ? '-' : ''; // Add minus sign if result is negative
+    $project->hourly = sprintf("%s%02d:%02d:00", $sign, $new_hours, $new_minutes);
 
-        // Convert back to HH:MM:SS format
-        $new_hours = floor($new_hourly_minutes / 60);
-        $new_minutes = $new_hourly_minutes % 60;
-        $project->hourly = sprintf("%02d:%02d:00", $new_hours, $new_minutes);
-
-        // Save the updated project
-        $project->save();
-    }
+    // Save the updated project
+    $project->save();
+}
 
 
+    
         $userIds = $request->input('user_id');
 
         $new_task = Task::create($formFields);

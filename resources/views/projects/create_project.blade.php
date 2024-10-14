@@ -42,21 +42,19 @@
     <label for="hourly" class="form-label"><?= get_label('hourly', 'hourly') ?></label>
     <div class="input-group input-group-merge">
         <span class="input-group-text">hrs</span>
-        <input class="form-control" type="text" id="hourly" name="hourly" placeholder="<?= get_label('please_enter_hourly', 'Please enter hourly') ?>" value="{{ old('budget') }}">
+        <input class="form-control" type="number" id="hourly" name="hourly" placeholder="<?= get_label('please_enter_hourly', 'Please enter hourly') ?>" value="{{ old('hourly') }}">
     </div>
     <p class="text-danger text-xs mt-1 error-message"></p>
 </div>
-<div class="card mt-4">
-    <div class="card-body">
-        <div class="card-title d-flex align-items-start justify-content-between">
-            <div class="avatar flex-shrink-0">
-                <i class="menu-icon tf-icons bx bx-package bx-md text-primary"></i>
-            </div>
+<div class="mb-3 col-md-6">
+                    <label for="package" class="form-label"><?= get_label('Package Type', 'Package Type') ?></label>
+        <div class="input-group input-group-merge">
+            <select class="form-control" id="package" name="package">
+                <option value=""><?= get_label('please_select_package_type', 'Please select package type') ?></option>
+                <option value="hourly"><?= get_label('hourly', 'Hourly') ?></option>
+                <option value="fixed"> <?= get_label('fixed', 'Fixed') ?></option>
+            </select>
         </div>
-        <span class="fw-semibold d-block mb-1"><?= get_label('package', 'Package') ?></span>
-        <h3 class="card-title mb-2">{{ ucfirst($package) }}</h3> <!-- Capitalizes the package type -->
-    </div>
-</div>
 
         <p class="text-danger text-xs mt-1 error-message"></p>
                     </div>
