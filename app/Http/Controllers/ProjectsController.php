@@ -119,15 +119,26 @@ class ProjectsController extends Controller
             'description' => ['required'],
             'package' => ['required', 'string'],
         ]);
-
+       
         // $start_date = $request->input('start_date');
         // $end_date = $request->input('end_date');
         // $formFields['start_date'] = format_date($start_date, null, "Y-m-d");
         // $formFields['end_date'] = format_date($end_date, null, "Y-m-d");
         $formFields['package'] = $request->input('package'); 
         // $formFields['hourly'] = $request->input('hourly'); 
-      
-$formFields['hourly'] = date('H:i:s', strtotime($request->input('hourly')));
+        
+        
+        $hourly = $request->input('hourly');
+        $hours = floor($hourly / 60); // Get the number of hours
+        $minutes = $hourly % 60; // Get the remaining minutes
+
+        // Format hours and minutes as HH:MM:SS
+        $time_formatted = sprintf("%02d:%02d:00", $hours, $minutes);
+
+        $formFields['hourly'] = $time_formatted;
+       
+
+
 
         
         $formFields['workspace_id'] = $this->workspace->id;
@@ -151,9 +162,12 @@ $formFields['hourly'] = date('H:i:s', strtotime($request->input('hourly')));
         $project->users()->attach($userIds);
         $project->clients()->attach($clientIds);
         $project->tags()->attach($tagIds);
-
+       
         Session::flash('message', 'Project created successfully.');
         return response()->json(['error' => false, 'id' => $new_project->id]);
+
+
+        
     }
 
     /**
@@ -184,6 +198,7 @@ $formFields['hourly'] = date('H:i:s', strtotime($request->input('hourly')));
         $project = Project::findOrFail($id);
         $users = $this->workspace->users;
         $clients = $this->workspace->clients;
+        // dd($project->package);
         return view('projects.update_project', ["project" => $project, "users" => $users, "clients" => $clients]);
     }
 
@@ -213,8 +228,15 @@ $formFields['hourly'] = date('H:i:s', strtotime($request->input('hourly')));
 
         $formFields['package'] = $request->input('package'); 
       
-      
-$formFields['hourly'] = date('H:i:s', strtotime($request->input('hourly')));
+        $hourly = $request->input('hourly');
+        $hours = floor($hourly / 60); // Get the number of hours
+        $minutes = $hourly % 60; // Get the remaining minutes
+
+        // Format hours and minutes as HH:MM:SS
+        $time_formatted = sprintf("%02d:%02d:00", $hours, $minutes);
+
+        $formFields['hourly'] = $time_formatted;
+
 
         $userIds = $request->input('user_id') ?? [];
         $clientIds = $request->input('client_id') ?? [];
@@ -340,7 +362,7 @@ $formFields['hourly'] = date('H:i:s', strtotime($request->input('hourly')));
                     'clients' => $project->clients,
                     'start_date' => format_date($project->start_date),
                     'end_date' => format_date($project->end_date),
-                    'budget' => !empty($project->budget) && $project->budget !== null ? format_currency($project->budget) : '-',
+                    'hourly' => !empty($project->hourly) && $project->hourly !== null ? format_currency($project->hourly) : '-',
 //                    'status_id' => "<span class='badge bg-label-" . $project->status->color . " me-1'>" . $project->status->title . "</span>",
                     'created_at' => format_date($project->created_at, 'H:i:s'),
                     'updated_at' => format_date($project->updated_at, 'H:i:s'),
