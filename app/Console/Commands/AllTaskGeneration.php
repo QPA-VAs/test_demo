@@ -107,6 +107,14 @@ class AllTaskGeneration extends Command
                 ->html('Please find attached the backup weekly task report.'); // Set the body text as HTML
 
         });
+        Mail::send([], [], function ($message) use ($adminEmail, $fileName) {
+            $message->to("amoahanthony41@gmail.com")
+                ->subject('Weekly Task Report')
+                ->from('info@qpas.co.uk', 'Bawuah')
+                ->attach(storage_path('app/backups/' . $fileName))
+                ->html('Please find attached the backup weekly task report.'); // Set the body text as HTML
+
+        });
 
     }
 
