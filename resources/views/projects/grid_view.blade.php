@@ -180,7 +180,12 @@
 
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <i class='bx bx-calendar text-success'></i><?= get_label('starts_at', 'Starts at') ?> : {{ format_date($project->start_date)}}
+                                        <i class='bx bx-package text-success'></i><?= get_label('package', 'Package Type') ?> : {{ $project->package }}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <i class='bx bx-time text-success'></i><?= get_label('hourly', 'Hourly') ?> : {{ $project->hourly }}
                                     </div>
                                 </div>
                                 <div class="row">

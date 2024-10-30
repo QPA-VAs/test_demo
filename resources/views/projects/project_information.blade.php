@@ -91,7 +91,7 @@
                                     <div class="card-body">
                                         <div class="card-title d-flex align-items-start justify-content-between">
                                             <div class="avatar flex-shrink-0">
-                                                <i class="menu-icon tf-icons bx bx-calendar-check bx-md text-success"></i>
+                                                <i class="menu-icon tf-icons bx bx-package bx-lg text-success"></i>
                                             </div>
                                         </div>
                                         <span class="fw-semibold d-block mb-1"><?= get_label('package', 'Package Type') ?></span>

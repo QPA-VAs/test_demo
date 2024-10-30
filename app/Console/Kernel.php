@@ -15,16 +15,17 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command('backup:run')->sundays();
         // $schedule->command('inspire')->hourly();
-        $schedule->command('auth:clear-resets')->everyFifteenMinutes();
-       $schedule->command('generate:task-pdf')->everyMinute();
+        $schedule->command('auth:clear-resets')->sundays();
+       $schedule->command('generate:task-pdf')->sundays();
         // $schedule->command('generate:backup-pdf')->everyMinute();
-        $schedule->command('queue:work  --stop-when-empty')->everyMinute();
+        $schedule->command('queue:work  --stop-when-empty')->sundays();
          // Schedule the task clearing command for every Monday at 8:30 AM
-//    $schedule->command('task:clear')->weeklyOn(1, '08:30');
-
+       $schedule->command('task:clear')->weeklyOn(1, '08:30');
+    //     
     }
-
+    
     /**
      * Register the commands for the application.
      *

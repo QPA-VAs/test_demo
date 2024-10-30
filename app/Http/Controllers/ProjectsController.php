@@ -68,14 +68,30 @@ class ProjectsController extends Controller
             $order = 'asc';
         }
         $projects = $this->workspace->projects();
-        $projects->where($where);
-        if (!empty($selectedTags)) {
-            $projects->whereHas('tags', function ($q) use ($selectedTags) {
-                $q->whereIn('tags.id', $selectedTags);
-            });
-        }
-        $projects = $projects->orderBy($sort, $order)->paginate(6);
-        return view('projects.grid_view', ['projects' => $projects, 'auth_user' => $this->user, 'selectedTags' => $selectedTags, 'is_favorite' => $is_favorite]);
+
+$projects->where($where);
+
+if (!empty($selectedTags)) {
+    $projects->whereHas('tags', function ($q) use ($selectedTags) {
+        $q->whereIn('tags.id', $selectedTags);
+    });
+}
+
+// Calculate total time spent for each project
+$projects = $projects->with(['tasks' => function ($q) {
+    $q->selectRaw('project_id, SUM(time_spent) as total_time_spent')
+        ->groupBy('project_id');
+}]);
+
+$projects = $projects->orderBy($sort, $order)->paginate(6);
+
+return view('projects.grid_view', [
+    'projects' => $projects,
+    'auth_user' => $this->user,
+    'selectedTags' => $selectedTags,
+    'is_favorite' => $is_favorite
+]);
+
     }
 
     public function list_view(Request $request, $type = null)
