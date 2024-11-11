@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
 use PDO;
 use App\Models\Task;
 use App\Models\User;
@@ -102,8 +103,8 @@ class TasksController extends Controller
 
     // Return the view with all necessary data
     return view('tasks.create_task', [
-        'project' => $project, 
-        'projects' => $projects, 
+        'project' => $project,
+        'projects' => $projects,
         'users' => $users,
         'currentDate' => $currentDate,  // Passing the current date to the view
         'loggedInUserId' => $loggedInUserId, // Passing the logged-in user ID to the view
@@ -173,18 +174,27 @@ if ($project && !is_null($project->hourly)) {
 }
 
 
-    
-        $userIds = $request->input('user_id');
+
+        $formFields['created_by'] = $this->user->id;
 
         $new_task = Task::create($formFields);
-        $task_id = $new_task->id;
-        $task = Task::find($task_id);
-        $task->users()->attach($userIds);
 
+        $userIds = $request->input('user_id', []);
+        if (!empty($userIds)) {
+            // Detach any existing users, if you want to clear previous associations
+            $new_task->users()->detach();
+            // Attach the new users
+            $new_task->users()->attach($userIds);
+        }
+//        $userIds = $request->input('user_id');
+//
+//        $new_task = Task::create($formFields);
+//        $task_id = $new_task->id;
+//        $task = Task::find($task_id);
+//        $task->users()->attach($userIds);
+//        Log::info('User IDs to attach:', (array) $userIds);
         Session::flash('message', 'Task created successfully.');
         return response()->json(['error' => false, 'id' => $new_task->id]);
-
-
     }
 
     /**
