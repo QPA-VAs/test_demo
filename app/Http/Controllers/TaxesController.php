@@ -15,6 +15,18 @@ class TaxesController extends Controller
 {
     protected $workspace;
     protected $user;
+    /**
+     * Constructor for TaxesController.
+     * 
+     * Initializes middleware to:
+     * - Set workspace property from session workspace_id
+     * - Set authenticated user property
+     * 
+     * The middleware runs before any controller action to ensure
+     * workspace and user context is available throughout the controller.
+     *
+     * @return void
+     */
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -25,6 +37,15 @@ class TaxesController extends Controller
         });
     }
 
+    /**
+     * Display a listing of taxes.
+     *
+     * This method retrieves the count of all taxes associated with the current workspace
+     * and returns it to the taxes list view.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function index(Request $request)
     {
         $taxes = $this->workspace->taxes();
@@ -32,6 +53,27 @@ class TaxesController extends Controller
         return view('taxes.list', ['taxes' => $taxes]);
     }
 
+    /**
+     * Store a new tax record in the database.
+     *
+     * Validates and stores tax information including title and type (amount/percentage).
+     * The tax is associated with the current workspace.
+     *
+     * @param  \Illuminate\Http\Request  $request Request containing tax data
+     * @return \Illuminate\Http\JsonResponse
+     *
+     * @throws \Illuminate\Validation\ValidationException When validation fails
+     *
+     * Request parameters:
+     * - title: string (required, unique) The name of the tax
+     * - type: string (required) Either 'amount' or 'percentage'
+     * - amount: numeric (required if type is 'amount') Fixed tax amount
+     * - percentage: numeric (required if type is 'percentage') Tax percentage value
+     *
+     * Response:
+     * - On success: JSON with error=false, success message, and new tax ID
+     * - On failure: JSON with error=true and error message
+     */
     public function store(Request $request)
     {
         // Validate the request data
@@ -65,6 +107,20 @@ class TaxesController extends Controller
         }
     }
 
+    /**
+     * Retrieve a paginated and filtered list of taxes for the current workspace.
+     * 
+     * This method handles:
+     * - Searching through taxes based on title, amount, percentage, type, and ID
+     * - Sorting results by any column (defaults to ID)
+     * - Order direction (defaults to DESC)
+     * - Pagination with custom limit
+     * - Formatting of currency and dates
+     * 
+     * @return \Illuminate\Http\JsonResponse JSON response containing:
+     *         - rows: Array of formatted tax records
+     *         - total: Total count of records before pagination
+     */
     public function list()
     {
         $search = request('search');
@@ -103,12 +159,36 @@ class TaxesController extends Controller
 
 
 
+    /**
+     * Retrieve a specific tax record by its ID.
+     *
+     * @param int $id The ID of the tax record to retrieve
+     * @return \Illuminate\Http\JsonResponse Returns JSON response containing the tax record
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When tax record is not found
+     */
     public function get($id)
     {
         $tax = Tax::findOrFail($id);
         return response()->json(['tax' => $tax]);
     }
 
+    /**
+     * Update an existing tax record in the database.
+     *
+     * @param  \Illuminate\Http\Request  $request The HTTP request containing tax data
+     * @return \Illuminate\Http\JsonResponse Json response indicating success/failure
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When tax is not found
+     *
+     * The method validates and updates:
+     * - title (required, must be unique)
+     * - workspace_id (automatically set from current workspace)
+     *
+     * Returns JSON with:
+     * - error: boolean indicating success/failure
+     * - message: status message
+     * - id: updated tax ID (on success)
+     */
     public function update(Request $request)
     {
         // Validate the request data

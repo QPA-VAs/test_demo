@@ -16,6 +16,18 @@ class LeaveRequestController extends Controller
 {
     protected $workspace;
     protected $user;
+    /**
+     * LeaveRequestController constructor.
+     * 
+     * Initializes the controller with middleware that:
+     * - Sets the current workspace based on session data
+     * - Sets the authenticated user
+     * 
+     * The middleware runs before any controller action and ensures
+     * workspace context and user authentication are available.
+     * 
+     * @return void
+     */
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -25,6 +37,17 @@ class LeaveRequestController extends Controller
             return $next($request);
         });
     }
+    /**
+     * Display a list of leave requests based on user permissions.
+     * 
+     * If user is admin or leave editor, shows all workspace leave requests.
+     * Otherwise shows only the user's own leave requests.
+     * 
+     * @return \Illuminate\View\View Returns view with:
+     *         - leave_requests: Count of leave requests
+     *         - users: Collection of workspace users
+     *         - auth_user: Current authenticated user
+     */
     public function index()
     {
         $leave_requests = is_admin_or_leave_editor() ? $this->workspace->leave_requests() : $this->user->leave_requests();
@@ -32,6 +55,24 @@ class LeaveRequestController extends Controller
         return view('leave_requests.list', ['leave_requests' => $leave_requests->count(), 'users' => $users, 'auth_user' => $this->user]);
     }
 
+    /**
+     * Store a new leave request in the database.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     *
+     * This method handles the creation of leave requests with different validation rules
+     * based on user roles (admin/leave editor vs regular users). It performs the following:
+     * 
+     * - Validates input fields based on user role
+     * - Prevents users from approving their own leave requests
+     * - Formats dates to Y-m-d format
+     * - Records who actioned the request (for admin/leave editor)
+     * - Associates request with current workspace
+     * - Sets appropriate user_id based on role and input
+     * 
+     * @throws \Illuminate\Validation\ValidationException When validation fails
+     */
     public function store(Request $request)
     {
         if (is_admin_or_leave_editor()) {
@@ -71,6 +112,27 @@ class LeaveRequestController extends Controller
         }
     }
 
+    /**
+     * List leave requests with filtering, sorting, and pagination.
+     * 
+     * This method handles the retrieval and formatting of leave requests based on various search criteria:
+     * - Search by reason or ID
+     * - Sort by any column (defaults to ID DESC)
+     * - Filter by status
+     * - Filter by user ID
+     * - Filter by action_by ID
+     * - Filter by date ranges (start and end dates)
+     * 
+     * Additional features:
+     * - Automatically filters by current user's ID if not admin/leave editor
+     * - Joins with users table to get requester and approver details
+     * - Calculates duration between dates
+     * - Formats dates and status badges for display
+     * 
+     * @return \Illuminate\Http\JsonResponse JSON response containing:
+     *         - rows: Array of formatted leave requests with user details, dates, and status
+     *         - total: Total count of matching records before pagination
+     */
     public function list()
     {
         $search = request('search');
@@ -165,12 +227,35 @@ class LeaveRequestController extends Controller
         ]);
     }
 
+    /**
+     * Retrieves a specific leave request record by ID.
+     *
+     * @param int $id The ID of the leave request to retrieve
+     * @return \Illuminate\Http\JsonResponse Returns JSON response containing the leave request
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When no leave request is found with the given ID
+     */
     public function get($id)
     {
         $lr = LeaveRequest::findOrFail($id);
         return response()->json(['lr' => $lr]);
     }
 
+    /**
+     * Update the status of a leave request.
+     * 
+     * This method handles the updating of leave request status with proper validation and authorization checks.
+     * Only admin can update an already actioned leave request, and users cannot approve their own leave requests.
+     *
+     * @param \Illuminate\Http\Request $request The HTTP request object containing leave request data
+     * 
+     * @throws \Illuminate\Validation\ValidationException When validation fails
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When leave request not found
+     * 
+     * @return \Illuminate\Http\JsonResponse JSON response with:
+     *         - On success: error(false), message, id, and type
+     *         - On failure: error(true) and error message
+     *         - On exception: error(true) and exception message with 500 status code
+     */
     public function update(Request $request)
     {
         try {
@@ -222,6 +307,16 @@ class LeaveRequestController extends Controller
         }
     }
 
+    /**
+     * Update the list of leave editors.
+     * 
+     * This method handles updating the leave editors by:
+     * 1. Removing editors that are no longer in the provided list
+     * 2. Adding new editors from the provided list if they don't already exist
+     * 
+     * @param  \Illuminate\Http\Request  $request Contains the request data with 'user_ids' array
+     * @return \Illuminate\Http\JsonResponse Returns JSON response with success/error message
+     */
     public function update_editors(Request $request)
     {
 
@@ -244,12 +339,37 @@ class LeaveRequestController extends Controller
         return response()->json(['error' => false, 'message' => 'Leave editors updated successfully.']);
     }
 
+    /**
+     * Delete a specified leave request from storage.
+     *
+     * @param int $id The ID of the leave request to delete
+     * @return \Illuminate\Http\JsonResponse Returns JSON response with deletion status
+     * 
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If leave request not found
+     */
     public function destroy($id)
     {
         DeletionService::delete(LeaveRequest::class, $id, 'Leave request');
         return response()->json(['error' => false, 'message' => 'Leave request deleted successfully.', 'id' => $id, 'type' => 'leave_request']);
     }
 
+    /**
+     * Delete multiple leave requests.
+     *
+     * @param \Illuminate\Http\Request $request The HTTP request containing leave request IDs
+     * @return \Illuminate\Http\JsonResponse JSON response indicating deletion status
+     *
+     * @throws \Illuminate\Validation\ValidationException When validation fails
+     *
+     * Expects request to contain:
+     * - ids: Array of leave request IDs to delete
+     *
+     * Returns JSON with:
+     * - error: Boolean indicating if operation failed
+     * - message: Success/error message
+     * - id: Array of deleted leave request IDs
+     * - type: Type of deleted resource ('leave_request')
+     */
     public function destroy_multiple(Request $request)
     {
         // Validate the incoming request

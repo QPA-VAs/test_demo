@@ -11,9 +11,9 @@ use Illuminate\Support\Facades\Session;
 class StatusController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the statuses.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View Returns the status list view
      */
     public function index()
     {
@@ -21,9 +21,9 @@ class StatusController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Display the form for creating a new status.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View The view for creating a new status
      */
     public function create()
     {
@@ -31,10 +31,16 @@ class StatusController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created status in the database.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * This method validates the incoming request data, generates a unique slug,
+     * and creates a new status record in the database.
+     *
+     * @param  \Illuminate\Http\Request  $request  The HTTP request containing status data
+     * @return \Illuminate\Http\JsonResponse       JSON response indicating success or failure
+     *                                            with message and status ID on success
+     *
+     * @throws \Illuminate\Validation\ValidationException When validation fails
      */
     public function store(Request $request)
     {
@@ -52,6 +58,22 @@ class StatusController extends Controller
         }
     }
 
+    /**
+     * Retrieve and format a paginated list of statuses
+     * 
+     * This method handles fetching statuses with optional search, sorting and pagination.
+     * The results are formatted to include status details with styled color output.
+     * 
+     * @return \Illuminate\Http\JsonResponse JSON response containing:
+     *      - rows: Array of status records with formatted fields
+     *      - total: Total count of records matching criteria
+     * 
+     * Request parameters:
+     * @param string|null $search Optional search term for filtering by title or ID
+     * @param string $sort Field to sort by (defaults to "id")
+     * @param string $order Sort direction ("ASC" or "DESC", defaults to "DESC")
+     * @param int $limit Number of records per page
+     */
     public function list()
     {
         $search = request('search');
@@ -85,6 +107,13 @@ class StatusController extends Controller
         ]);
     }
 
+    /**
+     * Retrieve a specific status by ID.
+     * 
+     * @param int $id The ID of the status to retrieve
+     * @return \Illuminate\Http\JsonResponse Returns JSON response containing the status object
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If status is not found
+     */
     public function get($id)
     {
         $status = Status::findOrFail($id);
@@ -114,11 +143,20 @@ class StatusController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update an existing status in the database.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param \Illuminate\Http\Request $request Contains the request data including:
+     *                                         - id: The ID of the status to update
+     *                                         - title: The new title for the status
+     *                                         - color: The new color for the status
+     * 
+     * @return \Illuminate\Http\JsonResponse Returns JSON response with:
+     *                                      - error: Boolean indicating if operation failed
+     *                                      - message: Success/failure message
+     *                                      - id: ID of updated status (on success only)
+     * 
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When status with given ID is not found
+     * @throws \Illuminate\Validation\ValidationException When validation fails
      */
     public function update(Request $request)
     {

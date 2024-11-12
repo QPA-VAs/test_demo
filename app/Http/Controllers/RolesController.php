@@ -14,9 +14,11 @@ use Illuminate\Support\Facades\Artisan;
 class RolesController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display all roles in the permission settings page
      *
-     * @return \Illuminate\Http\Response
+     * Retrieves all roles from the database and passes them to the permission settings view
+     *
+     * @return \Illuminate\View\View
      */
     public function index()
     {
@@ -25,9 +27,13 @@ class RolesController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Display the create role form with available permissions.
      *
-     * @return \Illuminate\Http\Response
+     * Retrieves all permissions from database filtered by category (projects, tasks, users, clients)
+     * and sorted alphabetically by name. These permissions are then passed to the view
+     * for displaying the role creation form.
+     *
+     * @return \Illuminate\View\View Returns view with categorized permissions data
      */
     public function create()
     {
@@ -40,10 +46,19 @@ class RolesController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created role in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * This method creates a new role with the provided name and assigns selected permissions.
+     * It also clears the application cache after creation.
+     *
+     * @param  \Illuminate\Http\Request  $request Request containing role data
+     *      - name: string (required) The name of the role
+     *      - permissions: array The permissions to assign to the role
+     * 
+     * @return \Illuminate\Http\JsonResponse JSON response indicating success/failure
+     *      - error: boolean False if successful
+     *
+     * @throws \Illuminate\Validation\ValidationException When validation fails
      */
     public function store(Request $request)
     {
@@ -65,17 +80,11 @@ class RolesController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Show the form for editing the specified role.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id The ID of the role
+     * @return \Illuminate\View\View Returns the edit role view with role data, permissions, guard name and authenticated user
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When role is not found
      */
     public function edit($id)
     {
@@ -87,11 +96,15 @@ class RolesController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified role in the database.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * This method updates a role's name and its associated permissions.
+     * After updating, it clears the application cache and sets a success message.
+     *
+     * @param  \Illuminate\Http\Request  $request  The HTTP request containing role data
+     * @param  int  $id  The ID of the role to update
+     * @return \Illuminate\Http\JsonResponse  JSON response indicating success
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException  When role is not found
      */
     public function update(Request $request, $id)
     {
@@ -125,6 +138,15 @@ class RolesController extends Controller
         return $response;
     }
 
+    /**
+     * Creates a new permission in the system.
+     * 
+     * This method specifically creates a permission for editing projects
+     * with 'client' as the guard name. The permission is stored in the
+     * permissions table using Spatie's Permission package.
+     *
+     * @return void
+     */
     public function create_permission()
     {
         // $createProjectsPermission = Permission::findOrCreate('create_tasks', 'client');

@@ -27,6 +27,14 @@ class ClientController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    /**
+     * The index function retrieves clients based on the user's role and displays them in the
+     * appropriate view.
+     * 
+     * @return The `index` function is returning a view based on the user's role. If the authenticated
+     * user has a role named 'member', it will return the 'emp_clients' view with the clients data.
+     * Otherwise, it will return the 'eclients' view with the clients data.
+     */
     public function index()
     {
         $workspace = Workspace::find(session()->get('workspace_id'));
@@ -44,6 +52,12 @@ class ClientController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    /**
+     * The create function returns a view for creating a new client.
+     * 
+     * @return A view named 'clients.create_client' is being returned.
+     */
     public function create()
     {
         return view('clients.create_client');
@@ -54,6 +68,19 @@ class ClientController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
+     */
+    /**
+     * The function `store` in PHP handles the creation of a new client with validation, file upload
+     * handling, date formatting, role assignment, and error handling.
+     * 
+     * @param Request request The `store` function you provided is a controller method that handles the
+     * storing of a new client record based on the data received in the HTTP request. Let's break down
+     * the key parts of this function:
+     * 
+     * @return The function `store` is returning a JSON response. If the client creation is successful,
+     * it returns an array with 'error' set to false and the 'id' of the created client. If there is an
+     * error during client creation, it returns an array with 'error' set to true and a corresponding
+     * error message.
      */
     public function store(Request $request)
     {
@@ -147,6 +174,19 @@ class ClientController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    /**
+     * The function "show" retrieves data related to a client and their associated projects, tasks,
+     * users, and clients within a workspace in PHP.
+     * 
+     * @param id The `id` parameter in the `show` function is used to retrieve a specific client record
+     * based on the provided ID. This function fetches information about the client, such as their
+     * projects, tasks count, associated users, and clients within the workspace. The retrieved data is
+     * then passed to the `
+     * 
+     * @return The `show` function is returning a view called 'clients.client_profile' with an array of
+     * data including the client, projects associated with the client, number of tasks for the client,
+     * users in the workspace, clients in the workspace, and the authenticated user.
+     */
     public function show($id)
     {
         $workspace = Workspace::find(session()->get('workspace_id'));
@@ -164,6 +204,16 @@ class ClientController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    /**
+     * The edit function retrieves a specific client by ID and passes it to a view for editing.
+     * 
+     * @param id The `edit` function is used to retrieve a specific client record based on the provided
+     * `` parameter. The function first tries to find the client with the given `` using the
+     * `findOrFail` method of the `Client` model. If the client is found, it then returns a view
+     * 
+     * @return The `edit` function is returning a view called `update_client` with the `client` data
+     * fetched using the `findOrFail` method based on the provided ``.
+     */
     public function edit($id)
     {
         $client = Client::findOrFail($id);
@@ -176,6 +226,21 @@ class ClientController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
+     */
+    /**
+     * The function `update` in this PHP code snippet updates client details based on the provided
+     * request data and handles file uploads and date formatting.
+     * 
+     * @param Request request The `update` function in the code snippet is used to update client
+     * details based on the provided request data. Here's a breakdown of the process:
+     * @param id The `id` parameter in the `update` function represents the unique identifier of the
+     * client record that needs to be updated. This identifier is used to fetch the specific client
+     * from the database using `Client::findOrFail()` and then update its details based on the
+     * validated form fields provided in the request
+     * 
+     * @return The `update` function is returning a JSON response with an object containing two keys:
+     * 1. 'error': A boolean value set to false, indicating that there are no errors.
+     * 2. 'id': The ID of the updated client record, which is retrieved from `->id`.
      */
     public function update(Request $request, $id)
     {
@@ -215,6 +280,17 @@ class ClientController extends Controller
         return response()->json(['error' => false, 'id' => $client->id]);
     }
 
+    /**
+     * The get function retrieves a client by their ID and returns it as a JSON response.
+     * 
+     * @param id The `get` function is a method that retrieves a `Client` model instance based on the
+     * provided `id` parameter. The `findOrFail` method is used to find a client by its primary key,
+     * and if the client is not found, it will throw a `ModelNotFoundException`.
+     * 
+     * @return The `get` function is returning a JSON response with the client data fetched using the
+     * `findOrFail` method from the `Client` model. The response includes the client data under the key
+     * 'client'.
+     */
     public function get($id)
     {
         $client = Client::findOrFail($id);
@@ -227,6 +303,17 @@ class ClientController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    /**
+     * The `destroy` function deletes a client record along with associated todos using a deletion
+     * service in PHP.
+     * 
+     * @param id The `id` parameter in the `destroy` function is used to identify the specific client
+     * that needs to be deleted. It is typically the unique identifier of the client record in the
+     * database, such as the primary key.
+     * 
+     * @return The `destroy` function is returning the response from the `DeletionService::delete`
+     * method.
+     */
     public function destroy($id)
     {
         $client = Client::findOrFail($id);
@@ -236,6 +323,21 @@ class ClientController extends Controller
     }
 
 
+    /**
+     * The function `destroy_multiple` validates and deletes multiple client records based on the
+     * provided IDs.
+     * 
+     * @param Request request The `destroy_multiple` function in the provided code snippet is
+     * responsible for deleting multiple client records based on the IDs provided in the request. Here
+     * is a breakdown of the function:
+     * 
+     * @return The function `destroy_multiple` is returning a JSON response with the following
+     * structure:
+     * - 'error': false, indicating that there are no errors
+     * - 'message': 'Clients(s) deleted successfully.', a success message
+     * - 'id': an array containing the IDs of the clients that were deleted
+     * - 'titles': an array containing the full names of the clients that were deleted
+     */
     public function destroy_multiple(Request $request)
     {
         // Validate the incoming request
@@ -262,6 +364,16 @@ class ClientController extends Controller
 
 
 
+    /**
+     * The function retrieves and paginates a list of clients based on search criteria and returns the
+     * data in JSON format.
+     * 
+     * @return The `list()` function returns a JSON response containing an array with two keys:
+     * 1. "rows": This key contains the paginated list of clients with their details such as id, first
+     * name, last name, company, email, phone, profile image, number of projects, status, creation
+     * date, update date, and number of tasks.
+     * 2. "total": This key contains the total count
+     */
     public function list()
     {
         $workspace = Workspace::find(session()->get('workspace_id'));
@@ -307,6 +419,18 @@ class ClientController extends Controller
         ]);
     }
 
+    /**
+     * The function `verify_email` fulfills an email verification request and redirects the user to the
+     * home page with a success message.
+     * 
+     * @param EmailVerificationRequest request The `verify_email` function takes an
+     * `EmailVerificationRequest` object as a parameter. This object likely contains information
+     * related to the email verification process, such as the email address to be verified and any
+     * additional data needed for verification.
+     * 
+     * @return A redirect to the '/home' route with a success message 'Email verified successfully.' is
+     * being returned.
+     */
     public function verify_email(EmailVerificationRequest $request)
     {
         $request->fulfill();

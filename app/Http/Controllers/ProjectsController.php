@@ -25,6 +25,17 @@ class ProjectsController extends Controller
 {
     protected $workspace;
     protected $user;
+    /**
+     * Constructor for ProjectsController
+     * 
+     * Applies middleware to fetch and set workspace and authenticated user information
+     * for use throughout the controller.
+     * 
+     * The middleware:
+     * - Retrieves workspace from session using workspace_id
+     * - Gets currently authenticated user
+     * - Makes these available via $this->workspace and $this->user
+     */
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -38,6 +49,31 @@ class ProjectsController extends Controller
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
+     */
+    /**
+     * Display a paginated list of projects with optional filtering and sorting.
+     *
+     * @param Request $request The HTTP request object
+     * @param string|null $type Optional type parameter to filter favorite projects
+     * @return \Illuminate\View\View Returns view with paginated projects and related data
+     *
+     * Filters available:
+     * - status: Filter projects by status_id
+     * - tags: Filter projects by tag IDs
+     * - type='favorite': Show only favorite projects
+     *
+     * Sorting options:
+     * - newest: Sort by creation date (desc)
+     * - oldest: Sort by creation date (asc)
+     * - recently-updated: Sort by update date (desc)
+     * - earliest-updated: Sort by update date (asc)
+     * 
+     * The method:
+     * 1. Processes filter parameters from request
+     * 2. Builds query conditions based on filters
+     * 3. Applies tag filtering if specified
+     * 4. Includes total time spent calculation for each project
+     * 5. Returns paginated results (6 items per page) with project data
      */
     public function index(Request $request, $type = null)
     {
@@ -94,6 +130,13 @@ return view('projects.grid_view', [
 
     }
 
+    /**
+     * Display the list view of projects.
+     *
+     * @param \Illuminate\Http\Request $request The HTTP request instance
+     * @param string|null $type The type of projects to display (e.g., 'favorite')
+     * @return \Illuminate\View\View Returns the projects view with projects, users, clients and favorites flag
+     */
     public function list_view(Request $request, $type = null)
     {
         $projects = $this->workspace->projects;
@@ -107,9 +150,12 @@ return view('projects.grid_view', [
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Display the project creation form.
      *
-     * @return \Illuminate\Http\Response
+     * Retrieves users and clients associated with the current workspace
+     * and passes them to the view for project creation.
+     *
+     * @return \Illuminate\View\View Returns the create project view with users, clients and authenticated user data
      */
     public function create()
     {
@@ -120,10 +166,23 @@ return view('projects.grid_view', [
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created project in the database.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
+     * 
+     * @throws \Illuminate\Validation\ValidationException
+     * 
+     * This method handles the creation of a new project with the following steps:
+     * 1. Validates required input fields (title, description, package)
+     * 2. Formats hourly time input from minutes to HH:MM:SS format
+     * 3. Associates project with current workspace and creator
+     * 4. Creates project record in database
+     * 5. Handles assignment of users, clients and tags to project
+     * 6. Automatically adds creator as participant
+     * 7. Sets flash message for success
+     * 
+     * @return JSON response with error status and new project ID
      */
     public function store(Request $request)
     {
@@ -192,6 +251,19 @@ return view('projects.grid_view', [
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    /**
+     * Display the specified project details.
+     * 
+     * This method retrieves a specific project and its related information including:
+     * - Associated tags
+     * - Workspace users
+     * - Workspace clients
+     * - Available controller types
+     * 
+     * @param int $id The ID of the project to display
+     * @return \Illuminate\View\View Returns view with project information and related data
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When project is not found
+     */
     public function show($id)
     {
 
@@ -204,10 +276,11 @@ return view('projects.grid_view', [
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified project.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  int  $id The ID of the project to edit
+     * @return \Illuminate\View\View Returns view with project, users and clients data
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When project is not found
      */
     public function edit($id)
     {
@@ -286,6 +359,27 @@ return view('projects.grid_view', [
         return $response;
     }
 
+    /**
+     * Delete multiple projects simultaneously.
+     *
+     * @param \Illuminate\Http\Request $request The request object containing project IDs
+     * @return \Illuminate\Http\JsonResponse JSON response with deletion status
+     *
+     * @throws \Illuminate\Validation\ValidationException When validation fails
+     *
+     * Request body should contain:
+     * {
+     *     "ids": [1, 2, 3] // Array of project IDs to delete
+     * }
+     *
+     * Response format:
+     * {
+     *     "error": false,
+     *     "message": "Project(s) deleted successfully.",
+     *     "id": [1, 2, 3], // Array of successfully deleted project IDs
+     *     "titles": ["Project 1", "Project 2", "Project 3"] // Array of deleted project titles
+     * }
+     */
     public function destroy_multiple(Request $request)
     {
         // Validate the incoming request
@@ -312,6 +406,63 @@ return view('projects.grid_view', [
 
 
 
+    /**
+     * Lists and filters projects based on various parameters.
+     *
+     * @param Request $request The HTTP request object
+     * @param string $id Optional. Format: '{type}_{id}' where type can be 'user' or 'client'
+     * @param string $type Optional. Type parameter (unused in current implementation)
+     * @return JsonResponse Returns JSON with filtered projects and total count
+     *
+     * Request parameters:
+     * @param string $search Optional. Search term for project title
+     * @param string $sort Optional. Column to sort by (defaults to "id")
+     * @param string $order Optional. Sort order (defaults to "DESC")
+     * @param string $status Optional. Filter by status ID
+     * @param string $user_id Optional. Filter by user ID
+     * @param string $client_id Optional. Filter by client ID
+     * @param string $project_start_date_from Optional. Start date range begin
+     * @param string $project_start_date_to Optional. Start date range end
+     * @param string $project_end_date_from Optional. End date range begin
+     * @param string $project_end_date_to Optional. End date range end
+     * @param string $is_favorites Optional. Filter favorite projects only
+     * @param int $limit Optional. Number of items per page
+     *
+     * JSON Response format:
+     * {
+     *   "rows": [
+     *     {
+     *       "id": int,
+     *       "title": string,
+     *       "users": array,
+     *       "clients": array,
+     *       "start_date": string,
+     *       "end_date": string,
+     *       "hourly": string,
+     *       "created_at": string,
+     *       "updated_at": string
+     *     }
+     *   ],
+     *   "total": int
+     * }
+     */
+
+    /**
+     * Updates the favorite status of a project.
+     *
+     * @param Request $request The HTTP request object
+     * @param int $id The project ID
+     * @return JsonResponse Returns JSON with error status
+     *
+     * Request parameters:
+     * @param bool $is_favorite The new favorite status
+     *
+     * JSON Response format:
+     * {
+     *   "error": bool,
+     *   "message"?: string
+     * }
+     */
     public function list(Request $request, $id = '', $type = '')
     {
         $search = request('search');
@@ -422,6 +573,20 @@ return view('projects.grid_view', [
         return response()->json(['error' => false]);
     }
 
+    /**
+     * Duplicates a project and its related data
+     * 
+     * This method creates a copy of an existing project including relationships
+     * with users, clients, tasks and tags. It uses the duplicateRecord helper
+     * function to handle the duplication process.
+     *
+     * @param int $id The ID of the project to duplicate
+     * @return \Illuminate\Http\JsonResponse Returns JSON response with:
+     *         - error: boolean indicating if operation failed
+     *         - message: status message
+     *         - id: original project ID if successful
+     * @throws \Exception When duplication fails
+     */
     public function duplicate($id)
     {
         // Define the related tables for this meeting
@@ -440,6 +605,25 @@ return view('projects.grid_view', [
         return response()->json(['error' => false, 'message' => 'Project duplicated successfully.', 'id' => $id]);
     }
 
+    /**
+     * Upload media files to a specific project.
+     * 
+     * This method handles the upload of multiple media files to a project using Laravel's media library.
+     * It sanitizes filenames, generates unique identifiers, and associates the files with the project.
+     *
+     * @param \Illuminate\Http\Request $request The request object containing:
+     *                                         - id: The project ID (integer)
+     *                                         - media_files: Array of uploaded files
+     * 
+     * @return \Illuminate\Http\JsonResponse Returns JSON response with:
+     *                                      - error: boolean indicating success/failure
+     *                                      - message: Status message
+     *                                      - id: Array of media IDs (on success)
+     *                                      - type: 'media' (on success)
+     *                                      - parent_type: 'project' (on success)
+     * 
+     * @throws \Exception When validation fails or file upload encounters an error
+     */
     public function upload_media(Request $request)
     {
         try {
@@ -490,6 +674,29 @@ return view('projects.grid_view', [
 
 
 
+    /**
+     * Retrieves and formats media files associated with a specific project.
+     *
+     * This method handles fetching, searching, sorting and formatting media files:
+     * - Retrieves media files for a given project ID
+     * - Supports searching through media items by ID, filename or creation date
+     * - Allows sorting by specified field and order
+     * - Formats media items for display, handling both images and other file types
+     * - Generates HTML for preview/download links and action buttons
+     *
+     * @param int $id The project ID to fetch media for
+     * @return \Illuminate\Http\JsonResponse JSON containing:
+     *         - rows: Array of formatted media items with:
+     *           - id: Media item ID
+     *           - file: HTML formatted preview/link
+     *           - file_name: Original filename
+     *           - file_size: Formatted file size
+     *           - created_at: Formatted creation timestamp
+     *           - updated_at: Formatted update timestamp
+     *           - actions: HTML for download/delete buttons
+     *         - total: Total count of media items
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When project is not found
+     */
     public function get_media($id)
     {
         $search = request('search');
@@ -564,6 +771,20 @@ return view('projects.grid_view', [
         ]);
     }
 
+    /**
+     * Delete a media item from database and disk storage.
+     * 
+     * @param int $mediaId The ID of the media item to be deleted
+     * @return \Illuminate\Http\JsonResponse Returns JSON response with:
+     *         - error: boolean indicating if operation failed
+     *         - message: string describing the result of operation
+     *         - id: int the ID of deleted media item
+     *         - title: string the filename of deleted media
+     *         - parent_id: int the model ID associated with media
+     *         - type: string constant 'media'
+     *         - parent_type: string constant 'project'
+     * @throws \Exception If media deletion fails
+     */
     public function delete_media($mediaId)
     {
         $mediaItem = Media::find($mediaId);
@@ -579,6 +800,25 @@ return view('projects.grid_view', [
         return response()->json(['error' => false, 'message' => 'File deleted successfully.', 'id' => $mediaId, 'title' => $mediaItem->file_name, 'parent_id' => $mediaItem->model_id,  'type' => 'media', 'parent_type' => 'project']);
     }
 
+    /**
+     * Delete multiple media files based on provided IDs.
+     *
+     * This method handles bulk deletion of media files. It validates the incoming IDs,
+     * ensures they exist in the media table, and performs the deletion operation.
+     * It keeps track of deleted items' information for response purposes.
+     *
+     * @param \Illuminate\Http\Request $request The request object containing media IDs to delete
+     * @return \Illuminate\Http\JsonResponse JSON response containing:
+     *         - error (boolean) - Operation status flag
+     *         - message (string) - Success message
+     *         - id (array) - Array of deleted media IDs
+     *         - titles (array) - Array of deleted file names
+     *         - parent_id (array) - Array of parent model IDs
+     *         - type (string) - Type of deleted items ('media')
+     *         - parent_type (string) - Parent model type ('project')
+     *
+     * @throws \Illuminate\Validation\ValidationException When validation fails
+     */
     public function delete_multiple_media(Request $request)
     {
         // Validate the incoming request
@@ -605,6 +845,27 @@ return view('projects.grid_view', [
         return response()->json(['error' => false, 'message' => 'Files(s) deleted successfully.', 'id' => $deletedIds, 'titles' => $deletedTitles, 'parent_id' => $parentIds, 'type' => 'media', 'parent_type' => 'project']);
     }
 
+    /**
+     * Store a new milestone in the database.
+     *
+     * Validates and processes milestone data from request, including:
+     * - Project ID
+     * - Title
+     * - Status
+     * - Start and end dates
+     * - Hourly rate
+     * - Description
+     *
+     * Formats dates to Y-m-d format and adds workspace ID and creator info before saving.
+     *
+     * @param  \Illuminate\Http\Request  $request Request containing milestone data
+     * @return \Illuminate\Http\JsonResponse JSON response with:
+     *         - error: false on success
+     *         - message: Success message
+     *         - id: Created milestone ID
+     *         - type: 'milestone'
+     *         - parent_type: 'project'
+     */
     public function store_milestone(Request $request)
     {
         $formFields = $request->validate([
@@ -631,6 +892,38 @@ return view('projects.grid_view', [
         return response()->json(['error' => false, 'message' => 'Milestone created successfully.', 'id' => $milestone->id, 'type' => 'milestone', 'parent_type' => 'project']);
     }
 
+    /**
+     * Retrieve and format project milestones with optional filtering and sorting
+     *
+     * @param int $id The project ID
+     * @return \Illuminate\Http\JsonResponse Returns JSON containing:
+     *         - rows: Array of milestone objects with formatted fields:
+     *           - id: Milestone ID
+     *           - title: Milestone title 
+     *           - status: HTML formatted status badge
+     *           - progress: HTML formatted progress bar
+     *           - hourly: Formatted hourly rate
+     *           - start_date: Formatted start date
+     *           - end_date: Formatted end date
+     *           - created_by: Creator's full name
+     *           - description: Milestone description
+     *           - created_at: Formatted creation time
+     *           - updated_at: Formatted update time
+     *         - total: Total count of filtered milestones
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When project not found
+     *
+     * Supports query parameters:
+     * @param string search Optional search term for title, id, hourly rate or description
+     * @param string sort Field to sort by (default: "id")
+     * @param string order Sort direction (default: "DESC") 
+     * @param string status Filter by status
+     * @param string start_date_from Start date range begin
+     * @param string start_date_to Start date range end
+     * @param string end_date_from End date range begin
+     * @param string end_date_to End date range end
+     * @param int limit Number of items per page
+     */
     public function get_milestones($id)
     {
         $project = Project::findOrFail($id);
@@ -717,12 +1010,41 @@ return view('projects.grid_view', [
         ]);
     }
 
+    /**
+     * Retrieves a specific milestone by its ID
+     * 
+     * @param int $id The ID of the milestone to retrieve
+     * @return \Illuminate\Http\JsonResponse JSON response containing the milestone data
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When milestone is not found
+     */
     public function get_milestone($id)
     {
         $ms = Milestone::findOrFail($id);
         return response()->json(['ms' => $ms]);
     }
 
+    /**
+     * Updates a milestone record in the database.
+     *
+     * @param \Illuminate\Http\Request $request The HTTP request containing milestone data
+     * @return \Illuminate\Http\JsonResponse JSON response indicating success/failure
+     *
+     * Validates and updates the following milestone fields:
+     * - title (required)
+     * - status (required) 
+     * - start_date (optional, must be before or equal to end_date)
+     * - end_date (optional)
+     * - hourly (required, must be numeric with optional decimal)
+     * - progress (required)
+     * - description (optional)
+     * 
+     * Returns JSON with:
+     * - error: boolean indicating success/failure
+     * - message: status message
+     * - id: milestone ID (on success)
+     * - type: 'milestone' (on success)
+     * - parent_type: 'project' (on success)
+     */
     public function update_milestone(Request $request)
     {
         $formFields = $request->validate([
@@ -748,12 +1070,45 @@ return view('projects.grid_view', [
             return response()->json(['error' => true, 'message' => 'Milestone couldn\'t updated.']);
         }
     }
+    /**
+     * Delete a milestone by its ID.
+     *
+     * This method removes a milestone from the database using the DeletionService.
+     * It first verifies the milestone exists, then deletes it and returns a JSON response
+     * with the operation status and deleted milestone details.
+     *
+     * @param int $id The ID of the milestone to delete
+     * @return \Illuminate\Http\JsonResponse JSON response containing:
+     *         - error: boolean indicating if operation failed
+     *         - message: success message
+     *         - id: deleted milestone ID
+     *         - title: deleted milestone title
+     *         - type: constant string 'milestone'
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When milestone is not found
+     */
     public function delete_milestone($id)
     {
         $ms = Milestone::findOrFail($id);
         DeletionService::delete(Milestone::class, $id, 'Milestone');
         return response()->json(['error' => false, 'message' => 'Milestone deleted successfully.', 'id' => $id, 'title' => $ms->title, 'type' => 'milestone']);
     }
+    /**
+     * Delete multiple milestones based on provided IDs.
+     *
+     * This method handles bulk deletion of milestones. It validates the input array of IDs,
+     * ensures each ID exists in the milestones table, and performs the deletion operation.
+     * It keeps track of deleted milestone IDs and titles for the response.
+     *
+     * @param \Illuminate\Http\Request $request The HTTP request containing milestone IDs to delete
+     * @return \Illuminate\Http\JsonResponse JSON response with:
+     *         - error: boolean indicating if operation failed
+     *         - message: success message
+     *         - id: array of deleted milestone IDs
+     *         - titles: array of deleted milestone titles
+     *         - type: string indicating the type of deleted resources
+     * @throws \Illuminate\Validation\ValidationException When validation fails
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When a milestone is not found
+     */
     public function delete_multiple_milestones(Request $request)
     {
         // Validate the incoming request

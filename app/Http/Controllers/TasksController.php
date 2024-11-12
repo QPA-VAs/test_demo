@@ -28,6 +28,17 @@ class TasksController extends Controller
 {
     protected $workspace;
     protected $user;
+    /**
+     * Constructor for TasksController.
+     * Initializes middleware to set workspace and user context for all controller actions.
+     * 
+     * The middleware:
+     * - Retrieves the current workspace from session
+     * - Sets authenticated user
+     * - Makes workspace and user available throughout the controller
+     * 
+     * @return void 
+     */
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -37,10 +48,17 @@ class TasksController extends Controller
             return $next($request);
         });
     }
+    
     /**
-     * Display a listing of the resource.
+     * Display a listing of tasks.
      *
-     * @return \Illuminate\Http\Response
+     * This method retrieves and displays tasks based on project ID or user permissions.
+     * If a project ID is provided, it shows tasks for that specific project.
+     * Otherwise, it shows all workspace tasks for admin/all-access users or user-specific tasks.
+     *
+     * @param string $id Optional project ID to filter tasks
+     * @return \Illuminate\View\View Returns tasks view with project, tasks count, users, clients and projects data
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When project with given ID is not found
      */
     public function index($id = '')
     {
@@ -59,9 +77,21 @@ class TasksController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Display the task creation form.
+     * 
+     * This method handles the display of the task creation form based on whether a specific project is selected.
+     * It also implements a time-based restriction system that disables task creation between Sunday 11 PM and Monday 9 AM.
      *
-     * @return \Illuminate\Http\Response
+     * @param string $id Optional project ID. If provided, loads specific project data and its users.
+     *                   If not provided, loads all workspace projects and users.
+     * 
+     * @return \Illuminate\View\View Returns view 'tasks.create_task' with:
+     *         - project: Selected project data or empty object
+     *         - projects: List of all workspace projects (if no specific project selected)
+     *         - users: List of users associated with project or workspace
+     *         - currentDate: Current date in 'YYYY-MM-DD' format
+     *         - loggedInUserId: ID of the authenticated user
+     *         - isDisabled: Boolean indicating if task creation should be disabled based on time restrictions
      */
     public function create($id = '')
 {
@@ -114,10 +144,30 @@ class TasksController extends Controller
 
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created task in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * This method handles the creation of a new task with the following steps:
+     * 1. Validates the incoming request data
+     * 2. Formats the time spent from minutes to HH:MM:SS format
+     * 3. Formats the start date to Y-m-d format
+     * 4. Updates the project's hourly budget if it exists
+     * 5. Creates the task record
+     * 6. Associates users with the task if provided
+     *
+     * @param  \Illuminate\Http\Request  $request Contains task data including:
+     *         - title (required)
+     *         - status_id (required)
+     *         - start_date (required)
+     *         - time_spent (required, in minutes)
+     *         - description (nullable)
+     *         - project (required)
+     *         - user_id (optional, array of user IDs to associate with the task)
+     * 
+     * @return \Illuminate\Http\JsonResponse JSON response containing:
+     *         - error: boolean indicating if operation failed
+     *         - id: ID of the newly created task
+     * 
+     * @throws \Illuminate\Validation\ValidationException When validation fails
      */
     public function store(Request $request)
     {
@@ -303,6 +353,31 @@ if ($project && !is_null($project->hourly)) {
     }
 
 
+    /**
+     * Retrieves and formats a list of tasks based on various filter criteria.
+     *
+     * This method handles task listing with multiple filter options including:
+     * - Search by title
+     * - Sort by any field
+     * - Filter by status
+     * - Filter by user
+     * - Filter by client
+     * - Filter by project
+     * - Filter by date range
+     * - Filter by time spent
+     *
+     * The method supports pagination and returns tasks with formatted data including:
+     * - Task details with linked titles
+     * - Project information with favorite status
+     * - User avatars with profile links
+     * - Client avatars with profile links
+     * - Formatted dates and status badges
+     *
+     * @param string $id Optional parameter in format 'type_id' (e.g., 'project_1', 'user_1', 'client_1')
+     * @return \Illuminate\Http\JsonResponse JSON response containing:
+     *                                      - rows: Array of formatted task data
+     *                                      - total: Total number of tasks matching criteria
+     */
     public function list($id = '')
     {
         $search = request('search');
@@ -400,6 +475,17 @@ if ($project && !is_null($project->hourly)) {
         ]);
     }
 
+    /**
+     * Display tasks in a board view using dragula interface.
+     * 
+     * This method retrieves tasks based on project ID and user permissions.
+     * If a project ID is provided, it fetches tasks for that specific project.
+     * Otherwise, it retrieves all tasks for the workspace.
+     * 
+     * @param string $id Optional project ID
+     * @return \Illuminate\View\View Returns board view with project, tasks and total task count
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When project is not found
+     */
     public function dragula($id = '')
     {
         $project = (object)[];
@@ -414,6 +500,18 @@ if ($project && !is_null($project->hourly)) {
         return view('tasks.board_view', ['project' => $project, 'tasks' => $tasks, 'total_tasks' => $total_tasks]);
     }
 
+    /**
+     * Update the status of a specific task.
+     *
+     * @param int $id The ID of the task to update
+     * @param int $newStatus The ID of the new status to be set
+     * @return \Illuminate\Http\JsonResponse Returns JSON response with:
+     *         - error: boolean indicating if operation failed
+     *         - message: string describing the result of operation
+     *         - id: int task ID (only on success)
+     *         - activity_message: string describing the status change (only on success)
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When task is not found
+     */
     public function updateStatus($id, $newStatus)
     {
         $task = Task::findOrFail($id);
@@ -428,6 +526,20 @@ if ($project && !is_null($project->hourly)) {
         }
     }
 
+    /**
+     * Duplicate a task record and its relationships.
+     * 
+     * This method creates a copy of an existing task record along with its related user associations.
+     * It uses a general duplicateRecord helper function to handle the duplication process.
+     *
+     * @param int $id The ID of the task to duplicate
+     * @return \Illuminate\Http\JsonResponse Returns JSON response containing:
+     *                                      - error: boolean indicating if operation failed
+     *                                      - message: string containing operation result message
+     *                                      - id: int original task ID if successful
+     * 
+     * @throws \Exception When duplication process fails
+     */
     public function duplicate($id)
     {
         // Define the related tables for this meeting
@@ -445,6 +557,27 @@ if ($project && !is_null($project->hourly)) {
         return response()->json(['error' => false, 'message' => 'Task duplicated successfully.', 'id' => $id]);
     }
 
+    /**
+     * Upload media files for a specific task.
+     *
+     * This method handles the upload of media files associated with a task.
+     * It validates the task ID, processes multiple files, sanitizes filenames,
+     * and stores them in the 'task-media' collection.
+     *
+     * @param \Illuminate\Http\Request $request The HTTP request containing:
+     *                                         - id: integer (task ID)
+     *                                         - media_files: array of files
+     *
+     * @return \Illuminate\Http\JsonResponse Returns JSON response with:
+     *                                      - error: boolean
+     *                                      - message: string
+     *                                      - id: array of media IDs (on success)
+     *                                      - type: string 'media' (on success)
+     *                                      - parent_type: string 'task' (on success)
+     *
+     * @throws \Exception When file upload fails
+     * @throws \Illuminate\Validation\ValidationException When validation fails
+     */
     public function upload_media(Request $request)
     {
         try {
@@ -492,6 +625,30 @@ if ($project && !is_null($project->hourly)) {
     }
 
 
+    /**
+     * Retrieve and format media files associated with a specific task.
+     * 
+     * This method fetches media files attached to a task, applies search filters if provided,
+     * and formats the media items for display in the frontend. It supports:
+     * - Searching by ID, filename, or creation date
+     * - Sorting by any field in ascending or descending order
+     * - Special handling for image files with lightbox integration
+     * - File download and delete actions
+     * 
+     * @param int $id The ID of the task to get media from
+     * @return \Illuminate\Http\JsonResponse JSON response containing:
+     *         - rows: Array of formatted media items with properties:
+     *           - id: Media item ID
+     *           - file: HTML markup for displaying/linking the file
+     *           - file_name: Original filename
+     *           - file_size: Formatted file size
+     *           - created_at: Formatted creation timestamp
+     *           - updated_at: Formatted update timestamp
+     *           - actions: HTML markup for download/delete actions
+     *         - total: Total count of media items
+     * 
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When task is not found
+     */
     public function get_media($id)
     {
         $search = request('search');
@@ -570,6 +727,20 @@ if ($project && !is_null($project->hourly)) {
         ]);
     }
 
+    /**
+     * Delete a media item
+     *
+     * @param int $mediaId The ID of the media item to delete
+     * @return \Illuminate\Http\JsonResponse Returns JSON response with:
+     *         - error: boolean indicating if operation failed
+     *         - message: status message
+     *         - id: deleted media ID
+     *         - title: deleted file name
+     *         - parent_id: ID of parent model
+     *         - type: type of deleted item ('media')
+     *         - parent_type: type of parent model ('task')
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When media item not found
+     */
     public function delete_media($mediaId)
     {
         $mediaItem = Media::find($mediaId);

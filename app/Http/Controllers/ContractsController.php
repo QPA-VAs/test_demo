@@ -15,10 +15,22 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
+/* The `ContractsController` class in PHP manages contract-related operations including creation,
+updating, listing, signing, and deletion with access control based on user roles. */
 class ContractsController extends Controller
 {
+    /* The above code is defining two protected properties in a PHP class: `` and ``.
+    These properties are not initialized with any values in the code snippet provided. */
     protected $workspace;
     protected $user;
+    /**
+     * The constructor fetches session data and assigns it to class properties, while the index method
+     * retrieves and displays contract-related data based on user access level.
+     * 
+     * @return The `index` method is returning a view named 'contracts.list' with an array of data
+     * containing the following variables: 'contracts', 'users', 'clients', 'projects', and
+     * 'contract_types'. These variables are being passed to the view for rendering.
+     */
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -28,6 +40,22 @@ class ContractsController extends Controller
             return $next($request);
         });
     }
+    /**
+     * The index function retrieves data based on user access level and returns it to the contracts
+     * list view in a PHP Laravel application.
+     * 
+     * @param Request request The `index` function in the code snippet is a controller method that
+     * retrieves data based on the user's access level and then passes that data to a view for display.
+     * Here's a breakdown of the parameters used in the function:
+     * 
+     * @return The `index` function is returning a view named 'contracts.list' with an array of data
+     * including the count of contracts, users, clients, projects, and contract types. The data being
+     * passed to the view includes:
+     * - 'contracts' with the count of contracts
+     * - 'users' with the workspace users
+     * - 'clients' with the workspace clients
+     * - 'projects' with either all workspace
+     */
     public function index(Request $request)
     {
         $contracts = isAdminOrHasAllDataAccess() ? $this->workspace->contracts() : $this->user->contracts();
@@ -39,6 +67,19 @@ class ContractsController extends Controller
         return view('contracts.list', ['contracts' => $contracts, 'users' => $users, 'clients' => $clients, 'projects' => $projects, 'contract_types' => $contract_types]);
     }
 
+    /**
+     * The function `store` creates a new contract with specified form fields and returns a JSON
+     * response indicating success or failure.
+     * 
+     * @param Request request The `store` function in the code snippet is responsible for storing a new
+     * contract based on the data provided in the request. Let's break down the code logic step by
+     * step:
+     * 
+     * @return a JSON response. If the contract is successfully created, it returns a JSON response
+     * with 'error' set to false, 'message' indicating success, and the 'id' of the created contract.
+     * If the contract creation fails, it returns a JSON response with 'error' set to true and a
+     * message indicating that the contract couldn't be created.
+     */
     public function store(Request $request)
     {
         if (isClient()) {
@@ -69,6 +110,19 @@ class ContractsController extends Controller
         }
     }
 
+    /**
+     * The function `update` in this PHP code snippet validates and updates contract information based
+     * on the provided request data.
+     * 
+     * @param Request request The `update` function in your code snippet is responsible for updating a
+     * contract based on the provided request data. Here is a breakdown of what the function does:
+     * 
+     * @return The `update` function is returning a JSON response. If the contract is successfully
+     * updated, it returns a JSON response with an error status of false, a success message indicating
+     * that the contract was updated successfully, and the ID of the updated contract. If the update
+     * operation fails, it returns a JSON response with an error status of true and a message
+     * indicating that the contract couldn't be updated.
+     */
     public function update(Request $request)
     {
         $formFields = $request->validate([
@@ -96,6 +150,16 @@ class ContractsController extends Controller
         }
     }
 
+    /**
+     * The `list` function in PHP retrieves and filters contract data based on various parameters and
+     * returns a JSON response with the results.
+     * 
+     * @return The `list()` function returns a JSON response with two keys:
+     * 1. "rows": Contains the paginated list of contracts with various details such as ID, title,
+     * value, start date, end date, duration, client, project, contract type, description, sign
+     * statuses, creator, created at, and updated at.
+     * 2. "total": Represents the total count of contracts that match the specified
+     */
     public function list()
     {
         $search = request('search');
@@ -233,12 +297,37 @@ class ContractsController extends Controller
         ]);
     }
 
+    /**
+     * The function retrieves a Contract model by its ID and returns a JSON response with the contract
+     * data.
+     * 
+     * @param id The `get` function in the code snippet is a method that retrieves a `Contract` model
+     * by its ID and returns a JSON response containing the contract data if found. The `findOrFail`
+     * method is used to retrieve the contract by its ID, and if the contract is not found, it will
+     * throw
+     * 
+     * @return An error status of false and the contract data associated with the given ID are being
+     * returned in JSON format.
+     */
     public function get($id)
     {
         $contract = Contract::findOrFail($id);
         return response()->json(['error' => false, 'contract' => $contract]);
     }
 
+    /**
+     * The `duplicate` function duplicates a Contract record using a general `duplicateRecord` function
+     * and returns a JSON response indicating success or failure.
+     * 
+     * @param id The `duplicate` function you provided seems to be a method in a PHP class that
+     * duplicates a record of a Contract model based on the given ``. It calls a `duplicateRecord`
+     * function passing the Contract class and the `` as parameters.
+     * 
+     * @return The `duplicate` function is returning a JSON response. If the duplication of the
+     * contract is successful, it will return a JSON response with `error` set to `false`, the original
+     * `id`, and a success message. If the duplication fails, it will return a JSON response with
+     * `error` set to `true` and an error message indicating that the contract duplication failed.
+     */
     public function duplicate($id)
     {
         // Use the general duplicateRecord function
@@ -250,6 +339,20 @@ class ContractsController extends Controller
         return response()->json(['error' => false, 'id' => $id, 'message' => 'Contract duplicated successfully.']);
     }
 
+    /**
+     * This PHP function retrieves contract details and the creator's name based on the ID provided,
+     * then returns a view for signing the contract.
+     * 
+     * @param Request request The `Request ` parameter in the `sign` function represents the
+     * HTTP request that is being made to the server. It contains all the data that is sent along with
+     * the request, such as form data, query parameters, and more.
+     * @param id The `id` parameter in the `sign` function is used to retrieve a specific contract from
+     * the database based on its ID. The function then fetches additional related information such as
+     * client details, contract type, project details, and the creator of the contract.
+     * 
+     * @return a view called 'contracts.sign' with the data from the  variable passed to the
+     * view using the compact() function.
+     */
     public function sign(Request $request, $id)
     {
         $contract = Contract::select(
@@ -281,6 +384,24 @@ class ContractsController extends Controller
         return view('contracts.sign', compact('contract'));
     }
 
+    /**
+     * The function `create_sign` processes a signature image, saves it as a PNG file, and updates the
+     * corresponding contract record based on user roles.
+     * 
+     * @param Request request The `create_sign` function is responsible for creating a signature for a
+     * contract based on the provided request data. Here's a breakdown of the process:
+     * 
+     * @return The function `create_sign` is returning a JSON response. If the signature is created
+     * successfully, it returns a JSON response with the following structure:
+     * ```json
+     * {
+     *     "error": false,
+     *     "id": <contract_id>,
+     *     "activity_message": "<user_name> signed contract <contract_title>"
+     * }
+     * ```
+     * If the signature couldn't be created, it returns a JSON response with the
+     */
     public function create_sign(Request $request)
     {
         $formFields = $request->validate([
@@ -306,6 +427,20 @@ class ContractsController extends Controller
         }
     }
 
+    /**
+     * The function `delete_sign` deletes a signature from a contract based on user permissions and
+     * updates the database accordingly.
+     * 
+     * @param id The `delete_sign` function you provided is responsible for deleting a signature from a
+     * contract based on certain conditions. The function takes an `` parameter which represents the
+     * ID of the contract whose signature needs to be deleted.
+     * 
+     * @return The function `delete_sign` returns a JSON response with an error status and additional
+     * data based on certain conditions. If the conditions for deleting a signature are met (user is
+     * creator or admin, not a client), it deletes the signature file, updates the database, flashes a
+     * success message, and returns a JSON response with error set to false and some activity message.
+     * If the user is a client and the
+     */
     public function delete_sign($id)
     {
         $contract = Contract::findOrFail($id);
@@ -325,6 +460,17 @@ class ContractsController extends Controller
         }
     }
 
+    /**
+     * This PHP function deletes a contract record and associated signatures from storage.
+     * 
+     * @param id The `destroy` function in the code snippet is responsible for deleting a `Contract`
+     * record from the database along with associated files stored in the `public/signatures`
+     * directory. The function first retrieves the `Contract` instance with the given ``, then calls
+     * the `delete` method of the `
+     * 
+     * @return The `destroy` function is returning the response from the `DeletionService::delete`
+     * method.
+     */
     public function destroy($id)
     {
         $contract = Contract::findOrFail($id);
@@ -335,6 +481,20 @@ class ContractsController extends Controller
         return $response;
     }
 
+    /**
+     * The function `destroy_multiple` in PHP validates and deletes multiple contracts based on the
+     * provided IDs, also deleting associated signature files.
+     * 
+     * @param Request request The `destroy_multiple` function is designed to handle the deletion of
+     * multiple contracts based on the provided IDs in the request. Here's a breakdown of the function:
+     * 
+     * @return The function `destroy_multiple` is returning a JSON response with the following
+     * structure:
+     * - 'error': false (indicating no error occurred during the deletion process)
+     * - 'message': 'Contract(s) deleted successfully.'
+     * - 'id': An array containing the IDs of the contracts that were successfully deleted
+     * - 'titles': An array containing the titles of the contracts that were successfully deleted
+     */
     public function destroy_multiple(Request $request)
     {
         // Validate the incoming request
@@ -362,6 +522,17 @@ class ContractsController extends Controller
         return response()->json(['error' => false, 'message' => 'Contract(s) deleted successfully.', 'id' => $deletedContracts, 'titles' => $deletedContractTitles]);
     }
 
+    /**
+     * The function retrieves the count of contract types from the workspace and passes it to the
+     * contract_types view.
+     * 
+     * @param Request request The `Request ` parameter in the `contract_types` function is an
+     * instance of the `Illuminate\Http\Request` class in Laravel. It represents the HTTP request that
+     * is being made to the application and contains information such as input data, headers, and more.
+     * 
+     * @return The `contract_types` method is returning a view named 'contracts.contract_types' with
+     * the data of the count of contract types stored in the variable ``.
+     */
     public function contract_types(Request $request)
     {
         $contract_types = $this->workspace->contract_types();
@@ -369,6 +540,21 @@ class ContractsController extends Controller
         return view('contracts.contract_types', ['contract_types' => $contract_types]);
     }
 
+    /**
+     * The function `store_contract_type` validates and stores a new contract type in a PHP
+     * application.
+     * 
+     * @param Request request The `store_contract_type` function is used to store a new contract type
+     * based on the data provided in the request. Here's a breakdown of the function:
+     * 
+     * @return The function `store_contract_type` is returning a JSON response. If the ContractType is
+     * successfully created, it returns a JSON response with the following data:
+     * - 'error' set to false
+     * - 'message' indicating that the Contract type was created successfully
+     * - 'id' containing the id of the created ContractType
+     * - 'title' containing the type of the created ContractType
+     * - '
+     */
     public function store_contract_type(Request $request)
     {
         // Validate the request data
@@ -385,6 +571,17 @@ class ContractsController extends Controller
         }
     }
 
+    /**
+     * The function `contract_types_list` retrieves and paginates a list of contract types based on
+     * search criteria and returns the results in JSON format.
+     * 
+     * @return The `contract_types_list` function returns a JSON response containing an array with two
+     * keys:
+     * 1. "rows": This key contains the paginated list of contract types with their id, type,
+     * created_at, and updated_at fields formatted as specified.
+     * 2. "total": This key contains the total count of contract types that match the search criteria
+     * (if any).
+     */
     public function contract_types_list()
     {
         $search = request('search');
@@ -415,12 +612,42 @@ class ContractsController extends Controller
         ]);
     }
 
+    /**
+     * The function `get_contract_type` retrieves a contract type by its ID and returns it as a JSON
+     * response.
+     * 
+     * @param id The `get_contract_type` function takes an `` parameter, which is used to retrieve a
+     * ContractType model from the database using the `findOrFail` method. The function then returns a
+     * JSON response containing the retrieved ContractType object with the key 'ct'.
+     * 
+     * @return The `get_contract_type` function is returning a JSON response with the ContractType
+     * object that was found using the `findOrFail` method with the provided ``. The response
+     * includes the ContractType object under the key 'ct'.
+     */
     public function get_contract_type($id)
     {
         $ct = ContractType::findOrFail($id);
         return response()->json(['ct' => $ct]);
     }
 
+    /**
+     * The function `update_contract_type` updates a contract type in PHP using Laravel's Eloquent ORM.
+     * 
+     * @param Request request The `update_contract_type` function is used to update a contract type
+     * based on the provided request data. Here is a breakdown of the function:
+     * 
+     * @return The function `update_contract_type` returns a JSON response. If the contract type is
+     * successfully updated, it returns a JSON response with the following structure:
+     * ```json
+     * {
+     *     "error": false,
+     *     "message": "Contract type updated successfully.",
+     *     "id": <contract_type_id>,
+     *     "title": "<updated_contract_type_title>",
+     *     "type": "contract_type"
+     * }
+     * ```
+     */
     public function update_contract_type(Request $request)
     {
         $formFields = $request->validate([
@@ -435,6 +662,23 @@ class ContractsController extends Controller
         }
     }
 
+    /**
+     * The function `delete_contract_type` deletes a contract type by setting its associated contracts
+     * to have a contract type ID of 0 and then deletes the contract type itself.
+     * 
+     * @param id The `delete_contract_type` function takes an `` parameter, which is used to
+     * identify the specific contract type that needs to be deleted. This function first retrieves the
+     * contract type using the `findOrFail` method from the `ContractType` model based on the provided
+     * ``.
+     * 
+     * @return The function `delete_contract_type` is returning a JSON response with the following keys
+     * and values:
+     * - 'error': false
+     * - 'message': 'Contract type deleted successfully.'
+     * - 'id': the ID of the deleted contract type
+     * - 'title': the type of the deleted contract type
+     * - 'type': 'contract_type'
+     */
     public function delete_contract_type($id)
     {
         $ct = ContractType::findOrFail($id);
@@ -443,6 +687,22 @@ class ContractsController extends Controller
         return response()->json(['error' => false, 'message' => 'Contract type deleted successfully.', 'id' => $id, 'title' => $ct->type, 'type' => 'contract_type']);
     }
 
+    /**
+     * The function `delete_multiple_contract_type` deletes multiple contract types based on validated
+     * IDs and updates associated contracts accordingly.
+     * 
+     * @param Request request The provided code snippet is a PHP function that handles the deletion of
+     * multiple contract types based on the IDs passed in the request. Here's a breakdown of the
+     * function:
+     * 
+     * @return The function `delete_multiple_contract_type` returns a JSON response with the following
+     * structure:
+     * - 'error': false (indicating no error occurred during the deletion process)
+     * - 'message': 'Contract type(s) deleted successfully.'
+     * - 'id': An array containing the IDs of the deleted contract types
+     * - 'titles': An array containing the titles of the deleted contract types
+     * - 'type': '
+     */
     public function delete_multiple_contract_type(Request $request)
     {
         // Validate the incoming request

@@ -21,8 +21,18 @@ use LaravelDaily\Invoices\Classes\InvoiceItem;
 
 class EstimatesInvoicesController extends Controller
 {
+    /* The above code is defining two protected properties in a PHP class: `` and ``.
+    These properties are not initialized with any values in the code snippet provided. */
     protected $workspace;
     protected $user;
+    /**
+     * The constructor function sets up middleware to fetch the workspace and authenticated user for
+     * the entire class.
+     * 
+     * @return The `next()` is being returned in the middleware function. This allows the
+     * request to continue to the next middleware or controller action in the application's request
+     * lifecycle.
+     */
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -32,6 +42,17 @@ class EstimatesInvoicesController extends Controller
             return $next($request);
         });
     }
+    /**
+     * Display a listing of the estimates and invoices.
+     *
+     * This method retrieves the count of estimates and invoices based on the user's access level.
+     * If the user is an admin or has full data access, it retrieves all estimates and invoices
+     * from the workspace. Otherwise, it retrieves only the estimates and invoices associated
+     * with the user. It also retrieves the users and clients associated with the workspace.
+     *
+     * @param \Illuminate\Http\Request $request The incoming request instance.
+     * @return \Illuminate\View\View The view displaying the list of estimates and invoices.
+     */
     public function index(Request $request)
     {
         $estimates_invoices = isAdminOrHasAllDataAccess() ? $this->workspace->estimates_invoices() : $this->user->estimates_invoices();
@@ -41,6 +62,12 @@ class EstimatesInvoicesController extends Controller
         return view('estimates-invoices.list', ['estimates_invoices' => $estimates_invoices, 'users' => $users, 'clients' => $clients]);
     }
 
+    /**
+     * Display the form for creating a new estimate or invoice.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function create(Request $request)
     {
         $clients = $this->workspace->clients;
@@ -50,6 +77,28 @@ class EstimatesInvoicesController extends Controller
         return view('estimates-invoices.create', ['clients' => $clients, 'items' => $items, 'units' => $units, 'taxes' => $taxes]);
     }
 
+    /**
+     * Store a new estimate or invoice in the database.
+     *
+     * This method handles the creation of new estimates and invoices with their associated items.
+     * It performs validation on the input data, processes the status field based on the document type,
+     * and creates relationships between the document and its items.
+     *
+     * @param \Illuminate\Http\Request $request The HTTP request containing the estimate/invoice data
+     * 
+     * @return \Illuminate\Http\JsonResponse Returns a JSON response with:
+     *         - On success: ['error' => false, 'id' => $id, 'type' => $type]
+     *         - On failure: ['error' => true, 'message' => $errorMessage]
+     * 
+     * @throws \Illuminate\Validation\ValidationException When validation fails
+     * 
+     * Validation rules include:
+     * - Required fields: type, client_id, name, address, city, state, country, zip_code, from_date, to_date, total, final_total
+     * - Optional fields: phone, note, personal_note, tax_amount
+     * - Status values for invoices: not_specified, partially_paid, fully_paid, draft, cancelled, due
+     * - Status values for estimates: not_specified, sent, accepted, draft, declined, expired
+     * - Items must have: quantity, rate, amount (unit and tax are optional)
+     */
     public function store(Request $request)
     {
         $rules = [
@@ -141,6 +190,32 @@ class EstimatesInvoicesController extends Controller
         }
     }
 
+    /**
+     * Retrieves and formats a paginated list of estimates and invoices.
+     * 
+     * This method handles the following functionalities:
+     * - Filters results based on search parameters (status, type, client, dates)
+     * - Implements sorting and ordering
+     * - Handles workspace-specific data access
+     * - Formats currency and date values
+     * - Generates status badges for different invoice/estimate states
+     * 
+     * @return \Illuminate\Http\JsonResponse JSON response containing:
+     *         - rows: Array of formatted estimate/invoice records with the following fields:
+     *           - id: Invoice/Estimate ID
+     *           - type: Document type (Estimate/Invoice)
+     *           - client: Client's full name
+     *           - total: Formatted amount before tax
+     *           - tax_amount: Formatted tax amount
+     *           - final_total: Formatted total amount including tax
+     *           - from_date: Formatted start date
+     *           - to_date: Formatted end date
+     *           - status: HTML status badge
+     *           - created_by: Creator's full name
+     *           - created_at: Formatted creation timestamp
+     *           - updated_at: Formatted update timestamp
+     *         - total: Total number of records (before pagination)
+     */
     public function list()
     {
         $search = request('search');
@@ -252,6 +327,17 @@ class EstimatesInvoicesController extends Controller
         ]);
     }
 
+    /**
+     * Show the form for editing an estimate/invoice.
+     *
+     * This method retrieves the estimate/invoice record along with related workspace data
+     * and displays the edit form view.
+     * 
+     * @param \Illuminate\Http\Request $request The HTTP request instance
+     * @param int $id The ID of the estimate/invoice to edit
+     * @return \Illuminate\View\View Returns view with estimate/invoice data and related workspace records
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When estimate/invoice is not found
+     */
     public function edit(Request $request, $id)
     {
         $estimate_invoice = EstimatesInvoice::findOrFail($id);
@@ -262,6 +348,52 @@ class EstimatesInvoicesController extends Controller
         return view('estimates-invoices.update', ['estimate_invoice' => $estimate_invoice, 'clients' => $clients, 'items' => $items, 'units' => $units, 'taxes' => $taxes]);
     }
 
+    /**
+     * Update an existing estimate or invoice.
+     *
+     * This method handles the update of estimates and invoices with their associated items.
+     * It performs validation on the input data, updates the main record, and syncs related items.
+     *
+     * @param  \Illuminate\Http\Request  $request  The HTTP request containing the update data
+     * @return \Illuminate\Http\JsonResponse
+     *
+     * @throws \Illuminate\Validation\ValidationException When validation fails
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When estimate/invoice not found
+     *
+     * Request parameters:
+     * @param int     $id           The ID of the estimate/invoice to update
+     * @param string  $type         The type of document ('estimate' or 'invoice')
+     * @param int     $client_id    The client ID
+     * @param string  $name         Client name
+     * @param string  $address      Client address
+     * @param string  $city         Client city
+     * @param string  $state        Client state
+     * @param string  $country      Client country
+     * @param string  $zip_code     Client ZIP code
+     * @param string  $phone        Client phone number
+     * @param string  $note         Optional note
+     * @param string  $from_date    Start date (Y-m-d format)
+     * @param string  $to_date      End date (Y-m-d format)
+     * @param string  $personal_note Optional personal note
+     * @param float   $total        Total amount
+     * @param float   $tax_amount   Optional tax amount
+     * @param float   $final_total  Final total amount
+     * @param string  $status       Document status (varies based on type)
+     * @param array   $item         Array of item IDs
+     * @param array   $quantity     Array of item quantities
+     * @param array   $unit        Array of unit IDs
+     * @param array   $rate        Array of item rates
+     * @param array   $tax         Array of tax IDs
+     * @param array   $amount      Array of item amounts
+     *
+     * @return JsonResponse with structure:
+     *         {
+     *             "error": boolean,
+     *             "id": int|null,
+     *             "type": string|null,
+     *             "message": string|null
+     *         }
+     */
     public function update(Request $request)
     {
         $rules = [
@@ -361,6 +493,28 @@ class EstimatesInvoicesController extends Controller
         }
     }
 
+    /**
+     * Display detailed information about a specific estimate or invoice.
+     *
+     * This method retrieves an estimate/invoice by ID and prepares it for display by:
+     * - Finding the creator's full name using the created_by field
+     * - Formatting dates according to application standards
+     * - Converting status to HTML badge representation based on different possible states:
+     *   - sent: blue badge
+     *   - accepted: green badge
+     *   - partially_paid: yellow badge
+     *   - fully_paid: green badge
+     *   - draft: gray badge
+     *   - declined: red badge
+     *   - expired: yellow badge
+     *   - not_specified: gray badge
+     *   - due: red badge
+     *
+     * @param Request $request The incoming HTTP request
+     * @param int $id The ID of the estimate/invoice to view
+     * @return \Illuminate\View\View Returns the view with the prepared estimate/invoice data
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When no estimate/invoice is found
+     */
     public function view(Request $request, $id)
     {
         $estimate_invoice = EstimatesInvoice::findOrFail($id);
@@ -404,6 +558,24 @@ class EstimatesInvoicesController extends Controller
         return view('estimates-invoices.view', compact('estimate_invoice'));
     }
 
+    /**
+     * Generates and streams a PDF for an estimate or invoice.
+     * 
+     * This method creates a PDF document for an estimate/invoice using the LaravelInvoice package.
+     * It sets up the document with company and client information, line items, notes, and formatting.
+     *
+     * @param Request $request The HTTP request object
+     * @param int $id The ID of the estimate/invoice to generate PDF for
+     * @return \Illuminate\Http\Response PDF stream response
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When estimate/invoice is not found
+     * 
+     * @uses \App\Models\EstimatesInvoice
+     * @uses \LaravelDaily\Invoices\Invoice
+     * @uses \LaravelDaily\Invoices\Classes\Party
+     * @uses \LaravelDaily\Invoices\Classes\InvoiceItem
+     * 
+     * @see https://github.com/LaravelDaily/laravel-invoices Documentation for Laravel Invoices package
+     */
     public function pdf(Request $request, $id)
     {
         $estimate_invoice = EstimatesInvoice::findOrFail($id);
@@ -492,6 +664,18 @@ class EstimatesInvoicesController extends Controller
     }
 
 
+    /**
+     * Deletes an estimate or invoice from the system.
+     * 
+     * @param int $id The ID of the estimate/invoice to delete
+     * @return \Illuminate\Http\JsonResponse JSON response containing:
+     *         - error: false on success
+     *         - message: Success message with type of document deleted
+     *         - id: The ID of the deleted document
+     *         - title: Formatted ID with prefix based on type (ESTMT-/INVC-)
+     *         - type: Type of document (estimate/invoice)
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When record not found
+     */
     public function destroy($id)
     {
         $estimate_invoice = EstimatesInvoice::findOrFail($id);
@@ -501,6 +685,25 @@ class EstimatesInvoicesController extends Controller
         return response()->json(['error' => false, 'message' => $type . ' deleted successfully.', 'id' => $id, 'title' => $estimate_invoice->type == 'estimate' ? get_label('estimate_id_prefix', 'ESTMT-') . $id : get_label('invoice_id_prefix', 'INVC-') . $id, 'type' => $estimate_invoice->type]);
     }
 
+    /**
+     * Delete multiple estimates/invoices from the database.
+     *
+     * @param \Illuminate\Http\Request $request The HTTP request containing IDs to delete
+     * @return \Illuminate\Http\JsonResponse JSON response with deletion status and details
+     * 
+     * @throws \Illuminate\Validation\ValidationException When validation fails
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When record not found
+     * 
+     * The request must contain:
+     * - ids: Array of estimate/invoice IDs to delete
+     * 
+     * Returns JSON with:
+     * - error: Boolean indicating if operation failed
+     * - message: Status message
+     * - id: Array of successfully deleted IDs
+     * - titles: Array of deleted record titles (with prefix)
+     * - type: Type of the last deleted record (estimate/invoice)
+     */
     public function destroy_multiple(Request $request)
     {
         // Validate the incoming request
@@ -526,6 +729,20 @@ class EstimatesInvoicesController extends Controller
         return response()->json(['error' => false, 'message' => 'Records deleted successfully.', 'id' => $deletedIds, 'titles' => $deletedTitles, 'type' => $res->type]);
     }
 
+    /**
+     * Duplicates an estimate or invoice record and its related items.
+     *
+     * This method creates a copy of an existing estimate/invoice record along with its associated items.
+     * It uses a general duplicateRecord function to handle the duplication process.
+     * 
+     * @param int $id The ID of the estimate/invoice to duplicate
+     * @return \Illuminate\Http\JsonResponse Returns JSON response with:
+     *         - error: boolean indicating if operation failed
+     *         - message: success/failure message
+     *         - id: original record ID (on success)
+     *         - type: record type (estimate/invoice) (on success)
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When record is not found
+     */
     public function duplicate($id)
     {
         $relatedTables = ['items']; // Include related tables as needed

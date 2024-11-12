@@ -18,6 +18,16 @@ class MeetingsController extends Controller
 {
     protected $workspace;
     protected $user;
+    /**
+     * Constructor for MeetingsController.
+     * 
+     * Initializes middleware that:
+     * - Fetches the current workspace from session
+     * - Gets the authenticated user
+     * These values are then available throughout the controller.
+     *
+     * @return void
+     */
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -27,6 +37,14 @@ class MeetingsController extends Controller
             return $next($request);
         });
     }
+    /**
+     * Display a list of meetings.
+     * 
+     * If the user is an admin or has all data access, returns all workspace meetings.
+     * Otherwise, returns only the meetings associated with the current user.
+     * 
+     * @return \Illuminate\View\View Returns meetings view with meetings, users and clients data
+     */
     public function index()
     {
         $meetings = isAdminOrHasAllDataAccess() ? $this->workspace->meetings : $this->user->meetings;
@@ -35,6 +53,14 @@ class MeetingsController extends Controller
         return view('meetings.meetings', compact('meetings', 'users', 'clients'));
     }
 
+    /**
+     * Display the meeting creation form.
+     * 
+     * Retrieves workspace users, clients and authenticated user information
+     * to populate the meeting creation form.
+     * 
+     * @return \Illuminate\View\View Returns the create meeting view with users, clients and auth user data
+     */
     public function create()
     {
         $users = $this->workspace->users;
@@ -44,6 +70,25 @@ class MeetingsController extends Controller
         return view('meetings.create_meeting', compact('users', 'clients', 'auth_user'));
     }
 
+    /**
+     * Store a newly created meeting in the database.
+     *
+     * This method validates the meeting form data, creates a new meeting record,
+     * and associates the selected users and clients with the meeting.
+     * The creator of the meeting is automatically added as a participant.
+     *
+     * @param  \Illuminate\Http\Request  $request  The HTTP request containing meeting data
+     * @return \Illuminate\Http\JsonResponse       JSON response with meeting ID or error status
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * Validation Rules:
+     * - title: required
+     * - start_date: required, must be before or equal to end_date
+     * - end_date: required, must be after or equal to start_date
+     * - start_time: required
+     * - end_time: required
+     */
     public function store(Request $request)
     {
         $formFields = $request->validate([
@@ -86,6 +131,30 @@ class MeetingsController extends Controller
         return response()->json(['error' => false, 'id' => $meeting_id]);
     }
 
+    /**
+     * List and filter meetings based on various parameters.
+     * 
+     * This method handles the retrieval and filtering of meetings with the following capabilities:
+     * - Search by title or ID
+     * - Filter by user
+     * - Filter by client
+     * - Filter by start date range
+     * - Filter by end date range
+     * - Filter by status (ongoing, yet_to_start, ended)
+     * - Sort results by specified column and order
+     * - Paginate results
+     * 
+     * The method also formats the output data including:
+     * - Meeting details (ID, title, dates)
+     * - Associated users with their avatars
+     * - Associated clients with their avatars
+     * - Dynamic status calculation
+     * - Formatted dates
+     *
+     * @return \Illuminate\Http\JsonResponse JSON response containing:
+     *         - rows: Array of formatted meeting data
+     *         - total: Total count of meetings matching the criteria
+     */
     public function list()
     {
         $search = request('search');
@@ -175,6 +244,13 @@ class MeetingsController extends Controller
         ]);
     }
 
+    /**
+     * Show the form for editing the specified meeting.
+     *
+     * @param int $id The ID of the meeting to edit
+     * @return \Illuminate\View\View Returns the meeting edit view with meeting, users and clients data
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When meeting is not found
+     */
     public function edit($id)
     {
         $meeting = Meeting::findOrFail($id);
@@ -183,6 +259,21 @@ class MeetingsController extends Controller
         return view('meetings.update_meeting', compact('meeting', 'users', 'clients'));
     }
 
+    /**
+     * Update the specified meeting in the database.
+     * 
+     * This method handles the update of an existing meeting record, including:
+     * - Validation of required fields
+     * - Processing of date and time inputs
+     * - Managing meeting participants (users and clients)
+     * - Ensuring the meeting creator remains a participant
+     *
+     * @param \Illuminate\Http\Request $request The HTTP request containing meeting data
+     * @param int $id The ID of the meeting to update
+     * @return \Illuminate\Http\JsonResponse JSON response containing error status and meeting ID
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When meeting is not found
+     * @throws \Illuminate\Validation\ValidationException When validation fails
+     */
     public function update(Request $request, $id)
     {
         $formFields = $request->validate([
@@ -219,6 +310,15 @@ class MeetingsController extends Controller
     }
 
 
+    /**
+     * Delete the specified meeting from storage.
+     *
+     * This method uses the DeletionService to handle the deletion process
+     * of a meeting record.
+     *
+     * @param  int  $id The ID of the meeting to be deleted
+     * @return \Illuminate\Http\JsonResponse Returns the response from DeletionService
+     */
     public function destroy($id)
     {
 
@@ -226,6 +326,21 @@ class MeetingsController extends Controller
         return $response;
     }
 
+    /**
+     * Delete multiple meetings from the database.
+     * 
+     * This method handles bulk deletion of meetings by their IDs. It validates the input,
+     * ensures all IDs exist in the database, and processes the deletion using the DeletionService.
+     * It also keeps track of deleted meeting IDs and titles for the response.
+     *
+     * @param \Illuminate\Http\Request $request The request containing array of meeting IDs to delete
+     * @return \Illuminate\Http\JsonResponse JSON response with:
+     *         - error: boolean indicating if any error occurred
+     *         - message: success message
+     *         - id: array of successfully deleted meeting IDs
+     *         - titles: array of deleted meeting titles
+     * @throws \Illuminate\Validation\ValidationException When validation fails
+     */
     public function destroy_multiple(Request $request)
     {
         // Validate the incoming request
@@ -250,6 +365,22 @@ class MeetingsController extends Controller
         return response()->json(['error' => false, 'message' => 'Meetings(s) deleted successfully.', 'id' => $deletedMeetings, 'titles' => $deletedMeetingTitles]);
     }
 
+    /**
+     * Handles joining a meeting based on the meeting ID.
+     *
+     * This method checks:
+     * 1. If the meeting exists
+     * 2. If the meeting time is valid (not too early/late)
+     * 3. If the user is authorized to join the meeting
+     *
+     * If all conditions are met, renders the join meeting view with necessary parameters.
+     *
+     * @param int $id The meeting ID
+     * @return \Illuminate\Http\Response|\Illuminate\View\View Returns either:
+     *         - Redirect with error message if conditions not met
+     *         - Join meeting view with meeting parameters if authorized
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When meeting not found
+     */
     public function join($id)
     {
 
@@ -273,6 +404,20 @@ class MeetingsController extends Controller
         }
     }
 
+    /**
+     * Duplicates a meeting record along with its related data.
+     * 
+     * This method creates a copy of an existing meeting including relationships
+     * with users and clients tables. It uses a general duplicateRecord helper function
+     * to handle the duplication process.
+     *
+     * @param int $id The ID of the meeting to duplicate
+     * @return \Illuminate\Http\JsonResponse Returns JSON response with:
+     *         - error: boolean indicating if operation failed
+     *         - message: string with operation result message
+     *         - id: int original meeting ID if successful
+     * @throws \Exception When duplication process fails
+     */
     public function duplicate($id)
     {
         // Define the related tables for this meeting

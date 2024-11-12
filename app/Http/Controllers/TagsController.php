@@ -11,11 +11,29 @@ use Illuminate\Support\Facades\Session;
 
 class TagsController extends Controller
 {
+    /**
+     * Display a listing of all tags.
+     *
+     * @return \Illuminate\View\View Returns the tags list view
+     */
     public function index()
     {
         return view('tags.list');
     }
 
+    /**
+     * Store a newly created tag in the database.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     * 
+     * @throws \Illuminate\Validation\ValidationException When validation fails
+     * 
+     * This method validates the incoming request for required 'title' and 'color' fields,
+     * generates a unique slug based on the title, creates a new Tag record,
+     * and returns a JSON response with the created tag's ID.
+     * Also sets a flash message for successful tag creation.
+     */
     public function store(Request $request)
     {
         $formFields = $request->validate([
@@ -30,6 +48,24 @@ class TagsController extends Controller
         return response()->json(['error' => false, 'message' => 'Tag created successfully.', 'id' => $tag->id]);
     }
 
+    /**
+     * Retrieve and format a paginated list of tags.
+     *
+     * This method handles the following functionalities:
+     * - Sorting tags by specified column and order
+     * - Searching tags by title or ID
+     * - Paginating results
+     * - Formatting tag data for display
+     *
+     * @return \Illuminate\Http\JsonResponse JSON response containing:
+     *         - rows: Array of formatted tag data including:
+     *           - id: Tag ID
+     *           - title: Tag title
+     *           - color: HTML formatted color badge
+     *           - created_at: Formatted creation timestamp
+     *           - updated_at: Formatted update timestamp
+     *         - total: Total number of tags matching the criteria
+     */
     public function list()
     {
         $search = request('search');
@@ -63,12 +99,40 @@ class TagsController extends Controller
         ]);
     }
 
+    /**
+     * Retrieves a specific tag by its ID
+     *
+     * @param int $id The ID of the tag to retrieve
+     * @return \Illuminate\Http\JsonResponse JSON response containing the tag data
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When tag is not found
+     */
     public function get($id)
     {
         $tag = Tag::findOrFail($id);
         return response()->json(['tag' => $tag]);
     }
 
+    /**
+     * Update the specified tag in storage.
+     *
+     * @param \Illuminate\Http\Request $request The request object containing tag data
+     * @return \Illuminate\Http\JsonResponse Returns JSON response with status and message
+     *
+     * @throws \Illuminate\Validation\ValidationException When validation fails
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When tag is not found
+     *
+     * Request body parameters:
+     * @param int    $id    The ID of the tag to update
+     * @param string $title The new title for the tag
+     * @param string $color The new color for the tag
+     *
+     * Response format:
+     * {
+     *     "error": boolean,
+     *     "message": string,
+     *     "id": int|null
+     * }
+     */
     public function update(Request $request)
     {
         $formFields = $request->validate([
@@ -88,12 +152,38 @@ class TagsController extends Controller
         }
     }
 
+    /**
+     * Retrieves all tag titles as suggestions.
+     *
+     * This method fetches all tag titles from the Tag model and returns them as a JSON response.
+     * It's typically used for providing tag suggestions in autocomplete or similar features.
+     *
+     * @return \Illuminate\Http\JsonResponse A JSON response containing an array of tag titles
+     */
     public function get_suggestions()
     {
         $tags = Tag::pluck('title');
         return response()->json($tags);
     }
 
+    /**
+     * Retrieve tag IDs based on provided tag names
+     * 
+     * @param Request $request The HTTP request containing tag names
+     * @return JsonResponse Returns JSON response with an array of tag IDs
+     *
+     * @throws None
+     *
+     * Expected request format:
+     * {
+     *     "tag_names": ["tag1", "tag2", ...]  
+     * }
+     *
+     * Response format:
+     * {
+     *     "tag_ids": [1, 2, ...]
+     * }
+     */
     public function get_ids(Request $request)
     {
         $tagNames = $request->input('tag_names');
