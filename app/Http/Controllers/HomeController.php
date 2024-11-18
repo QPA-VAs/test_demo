@@ -17,17 +17,6 @@ class HomeController extends Controller
 {
     protected $workspace;
     protected $user;
-    /**
-     * Constructor for the HomeController.
-     * 
-     * Sets up middleware to fetch and initialize workspace and user data for all controller actions.
-     * The middleware:
-     * - Retrieves the current workspace from session using workspace_id
-     * - Gets the authenticated user
-     * - Makes these available throughout the controller via class properties
-     *
-     * @return void
-     */
     public function __construct()
     {
 
@@ -38,18 +27,6 @@ class HomeController extends Controller
             return $next($request);
         });
     }
-    /**
-     * Display the main dashboard or client view based on user role
-     * 
-     * This method handles the main dashboard view logic by:
-     * 1. Fetching projects, tasks, users, clients, todos and meetings based on user permissions
-     * 2. For admin/all-access users, fetches workspace data
-     * 3. For regular users, fetches user-specific data
-     * 4. For members, redirects to client view
-     * 
-     * @param \Illuminate\Http\Request $request The incoming HTTP request
-     * @return \Illuminate\View\View Returns either dashboard or client view with relevant data
-     */
     public function index(Request $request)
     {
         $projects = isAdminOrHasAllDataAccess() ? $this->workspace->projects ?? [] : $this->user->projects ?? [];
@@ -66,26 +43,6 @@ class HomeController extends Controller
         return view('dashboard', ['users' => $users, 'clients' => $clients, 'projects' => $projects, 'tasks' => $tasks, 'todos' => $todos, 'total_todos' => $total_todos, 'meetings' => $meetings, 'auth_user' => $this->user]);
     }
 
-    /**
-     * Retrieves and formats upcoming birthdays for users in the workspace.
-     * 
-     * @return \Illuminate\Http\JsonResponse JSON response containing:
-     *      - rows: Array of user birthday information including:
-     *          - id: User ID
-     *          - member: HTML formatted string with user's full name, emoji (if birthday today), and avatar
-     *          - age: User's current age
-     *          - days_left: Days until next birthday
-     *          - dob: Formatted date of birth with label (Today/Tomorrow/Day after tomorrow)
-     *      - total: Total count of matching records
-     * 
-     * Query Parameters:
-     * @param string|null $search Search term for filtering by name or date of birth
-     * @param string $sort Field to sort by (default: "dob")
-     * @param string $order Sort direction (default: "ASC") 
-     * @param int $upcoming_days Number of days to look ahead (default: 30)
-     * @param int|null $user_id Specific user ID to filter
-     * @param int|null $limit Number of records per page
-     */
     public function upcoming_birthdays()
     {
         $search = request('search');
@@ -172,41 +129,6 @@ class HomeController extends Controller
 
 
 
-    /**
-     * Retrieves and formats upcoming work anniversaries for users in the workspace.
-     * 
-     * This method fetches users whose work anniversaries are approaching within a specified
-     * number of days (default 30 days). It includes various features:
-     * 
-     * @return \Illuminate\Http\JsonResponse JSON response containing:
-     *         - rows: Paginated list of users with their work anniversary details
-     *         - total: Total count of users matching the criteria
-     * 
-     * Features:
-     * - Filters users based on date of joining (doj)
-     * - Supports searching by name or date of joining
-     * - Allows filtering by specific user ID
-     * - Supports custom sorting and ordering
-     * - Customizable upcoming days range
-     * - Pagination support
-     * 
-     * Each user record includes:
-     * - User ID
-     * - Full name with avatar
-     * - Work anniversary date with visual indicators:
-     *   - Today: Shows success badge with celebration emoji
-     *   - Tomorrow: Shows primary badge
-     *   - Day after tomorrow: Shows warning badge
-     * - Days remaining until work anniversary
-     * 
-     * Query Parameters:
-     * @param string|null $search Search term for filtering users
-     * @param string $sort Field to sort by (default: "doj")
-     * @param string $order Sort order (default: "ASC")
-     * @param int $upcoming_days Number of days to look ahead (default: 30)
-     * @param int|null $user_id Specific user ID to filter
-     * @param int|null $limit Number of records per page
-     */
     public function upcoming_work_anniversaries()
     {
         $search = request('search');
@@ -286,31 +208,6 @@ class HomeController extends Controller
 
 
 
-    /**
-     * Retrieves and formats information about members who are on leave or will be on leave.
-     * 
-     * This method processes leave requests for workspace members, handling both current and upcoming leaves.
-     * It supports searching, sorting, and filtering of leave records.
-     * 
-     * @return \Illuminate\Http\JsonResponse JSON response containing:
-     *                                      - rows: Array of leave records with member details
-     *                                      - total: Total count of matching records
-     * 
-     * Request parameters:
-     * @param string|null $search Optional search term for member names
-     * @param string $sort Field to sort by (defaults to "from_date")
-     * @param string $order Sort order (ASC/DESC, defaults to "ASC")
-     * @param int $upcoming_days Number of days to look ahead (defaults to 30)
-     * @param int|null $user_id Optional user ID to filter specific member
-     * 
-     * Each row in response contains:
-     * - id: User ID
-     * - member: HTML formatted string with user's name, status label and avatar
-     * - from_date: Formatted start date of leave
-     * - to_date: Formatted end date of leave
-     * - duration: Leave duration in days
-     * - days_left: Days until leave starts
-     */
     public function members_on_leave()
     {
         $search = request('search');

@@ -4,7 +4,7 @@
 <!-- Content -->
 
 <div class="container-fluid">
-    @if (config('constants.ALLOW_MODIFICATION') === 0)
+    @if (config('constants.ALLOW_MODIFICATION') === 1)
     <div class="col-12 text-center mt-4">
         <div class="alert alert-warning mb-0">
             <b>Note:</b> If you cannot log in here, please close the codecanyon frame by clicking on <b>x Remove Frame</b> button from the top right corner of the page or <a href="{{ url('/') }}" target="_blank">&gt;&gt; Click here &lt;&lt;</a>

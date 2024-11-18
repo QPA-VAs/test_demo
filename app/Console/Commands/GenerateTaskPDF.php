@@ -41,7 +41,7 @@ class GenerateTaskPDF extends Command
         $endDate = Carbon::now()->startOfWeek();
         $clients = \App\Models\Client::all();
 
-        $adminEmail = \App\Models\User::where('last_name', 'Bawuah')->value('email');
+        $adminEmail = \App\Models\User::where('last_name', 'pepos')->value('email');
 
         $pdfAttachments = [];
 

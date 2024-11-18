@@ -103,7 +103,7 @@
                     if (!isset($project->id)) {
                     ?>
                         <div class="mb-3">
-                            <label class="form-label" for="user_id"><?= get_label('select_client_project', 'Select Client Project') ?> <span class="asterisk">*</span></label>
+                            <label class="form-label" for="user_id"><?= get_label('select_client', 'Select Client') ?> <span class="asterisk">*</span></label>
                             <div class="input-group">
                                 <select id="" class="form-control js-example-basic-multiple" name="project" data-placeholder="<?= get_label('type_to_search', 'Type to search') ?>">
                                     <option value=""></option>

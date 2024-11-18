@@ -15,16 +15,6 @@ class TodosController extends Controller
 {
     protected $workspace;
     protected $user;
-    /**
-     * Constructor for TodosController
-     * 
-     * Sets up middleware that:
-     * 1. Retrieves the current workspace from session
-     * 2. Gets the authenticated user
-     * 
-     * These values are made available throughout the controller via class properties
-     * $this->workspace and $this->user
-     */
     public function __construct()
     {
 
@@ -147,19 +137,6 @@ class TodosController extends Controller
 
 
 
-    /**
-     * Update the completion status of a todo item
-     * 
-     * @param \Illuminate\Http\Request $request The HTTP request containing todo ID and status
-     * @return \Illuminate\Http\JsonResponse Returns JSON response with:
-     *         - error: boolean indicating if operation failed
-     *         - message: status message
-     *         - id: todo ID (only on success)
-     *         - activity_message: description of the action (only on success)
-     * 
-     * @throws \Illuminate\Validation\ValidationException When validation fails
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When todo not found
-     */
     public function update_status(Request $request)
     {
         $formFields = $request->validate([
@@ -179,13 +156,6 @@ class TodosController extends Controller
         }
     }
 
-    /**
-     * Retrieve a specific todo item by its ID
-     *
-     * @param int $id The ID of the todo item to retrieve
-     * @return \Illuminate\Http\JsonResponse JSON response containing the todo item
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When todo item is not found
-     */
     public function get($id)
     {
         $todo = Todo::findOrFail($id);

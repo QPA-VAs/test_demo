@@ -18,6 +18,7 @@ class Task extends Model implements HasMedia
         'start_date',
         'time_spent',
         'description',
+        'user_id',
         'workspace_id',
         'created_by'
     ];

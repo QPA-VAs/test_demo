@@ -15,19 +15,6 @@ class UnitsController extends Controller
 {
     protected $workspace;
     protected $user;
-    /**
-     * Constructor for UnitsController.
-     * 
-     * Initializes middleware that:
-     * - Retrieves the current workspace from session
-     * - Gets the authenticated user
-     * 
-     * Sets class properties:
-     * @property Workspace $workspace Current workspace instance
-     * @property User $user Authenticated user instance
-     * 
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -38,15 +25,6 @@ class UnitsController extends Controller
         });
     }
 
-    /**
-     * Display a list of units in the workspace.
-     *
-     * This method retrieves the count of all units associated with the current workspace
-     * and returns a view with the units count data.
-     *
-     * @param \Illuminate\Http\Request $request The incoming HTTP request
-     * @return \Illuminate\View\View Returns a view with the units count
-     */
     public function index(Request $request)
     {
         $units = $this->workspace->units();
@@ -54,23 +32,6 @@ class UnitsController extends Controller
         return view('units.list', ['units' => $units]);
     }
 
-    /**
-     * Store a newly created unit in the database.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     * 
-     * @throws \Illuminate\Validation\ValidationException When validation fails
-     * 
-     * Validates and stores a new unit with the following fields:
-     * - title (required, unique)
-     * - description (optional)
-     * - workspace_id (automatically set from current workspace)
-     * 
-     * Returns JSON response with:
-     * - On success: error=false, success message, and created unit ID
-     * - On failure: error=true and error message
-     */
     public function store(Request $request)
     {
         // Validate the request data
@@ -89,25 +50,6 @@ class UnitsController extends Controller
         }
     }
 
-    /**
-     * Retrieves and returns a paginated list of units with optional search and sorting.
-     * 
-     * This method handles the following functionalities:
-     * - Search filtering based on title, description, or ID
-     * - Sorting by any column (defaults to ID in descending order)
-     * - Pagination with custom limit
-     * - Data transformation for consistent response format
-     *
-     * @return \Illuminate\Http\JsonResponse JSON response containing:
-     *         - rows: Array of unit records with formatted timestamps
-     *         - total: Total count of units (before pagination)
-     *
-     * Query Parameters:
-     * @param string|null $search Optional search term to filter units
-     * @param string $sort Column name to sort by (default: 'id')
-     * @param string $order Sort direction ('ASC' or 'DESC', default: 'DESC')
-     * @param int $limit Number of items per page
-     */
     public function list()
     {
         $search = request('search');
@@ -142,35 +84,12 @@ class UnitsController extends Controller
 
 
 
-    /**
-     * Retrieve a specific unit by its ID.
-     *
-     * @param int $id The ID of the unit to retrieve
-     * @return \Illuminate\Http\JsonResponse JSON response containing the unit data
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When unit is not found
-     */
     public function get($id)
     {
         $unit = Unit::findOrFail($id);
         return response()->json(['unit' => $unit]);
     }
 
-    /**
-     * Updates an existing unit with the provided data.
-     *
-     * @param  \Illuminate\Http\Request  $request Contains the request data including:
-     *         - title: Required, unique unit title
-     *         - description: Optional unit description
-     *         - id: ID of the unit to update
-     * 
-     * @return \Illuminate\Http\JsonResponse Returns JSON response with:
-     *         - error: Boolean indicating if operation failed
-     *         - message: Success/error message
-     *         - id: ID of updated unit (on success)
-     * 
-     * @throws \Illuminate\Validation\ValidationException When validation fails
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When unit not found
-     */
     public function update(Request $request)
     {
         // Validate the request data

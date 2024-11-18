@@ -14,18 +14,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
 
-/* The `ActivityLogController` class in PHP manages fetching, displaying, and deleting activity log
-data in a Laravel application. */
 class ActivityLogController extends Controller
 {
-    /**
-     * The function fetches workspace and user information from the session and then retrieves users,
-     * clients, and types data to display in the activity log list view.
-     * 
-     * @return The `index` method is returning a view called 'activity_log.list' with an array of data
-     * containing users, clients, and types. The users and clients data are fetched from the workspace
-     * object, and the types data is obtained from the `getControllerNames()` function.
-     */
     protected $workspace;
     protected $user;
     public function __construct()
@@ -45,15 +35,6 @@ class ActivityLogController extends Controller
         return view('activity_log.list', ['users' => $users, 'clients' => $clients, 'types' => $types]);
     }
 
-    /**
-     * The `list` function in PHP retrieves and filters activity logs based on various parameters and
-     * returns a JSON response with the results.
-     * 
-     * @return The `list()` function returns a JSON response containing an array of rows with activity
-     * log data and the total count of activity logs. The rows include information such as actor ID,
-     * actor name, actor type, type ID, parent type ID, type, parent type, type title, parent type
-     * title, activity, message, created at timestamp, and updated at timestamp.
-     */
     public function list()
     {
         $search = request('search');
@@ -214,7 +195,7 @@ END AS parent_type_title,
                 $join->on('activity_logs.type_id', '=', 'meetings.id')
                     ->where('activity_logs.type', '=', 'meeting');
             })
-            ->leftJoin('statuses', function ($join) {
+            ->leftJoin('status', function ($join) {
                 $join->on('activity_logs.type_id', '=', 'statuses.id')
                     ->where('activity_logs.type', '=', 'status');
             })
@@ -360,38 +341,12 @@ END AS parent_type_title,
         ]);
     }
 
-    /**
-     * This PHP function uses a DeletionService to delete a record from the ActivityLog class based on
-     * the provided ID.
-     * 
-     * @param id The `id` parameter is the unique identifier of the record that you want to delete. It
-     * is used to specify which record should be deleted from the database.
-     * 
-     * @return The `destroy` function is returning the response from the `DeletionService::delete`
-     * method, which is responsible for deleting a record of the `ActivityLog` class with the specified
-     * ``. The response could be a success message, an error message, or any other relevant
-     * information returned by the deletion service.
-     */
     public function destroy($id)
     {
         $response = DeletionService::delete(ActivityLog::class, $id, 'Record');
         return $response;
     }
 
-    /**
-     * The function `destroy_multiple` validates and deletes multiple records based on the provided IDs
-     * in a Laravel application.
-     * 
-     * @param Request request The `destroy_multiple` function is designed to handle a request that
-     * contains an array of IDs (`ids`) representing records to be deleted. The function first
-     * validates the incoming request to ensure that the `ids` parameter is present, is an array, and
-     * that each ID in the array is a valid integer
-     * 
-     * @return The function `destroy_multiple` is returning a JSON response with an object containing
-     * two keys: 'error' and 'message'. The value of 'error' is set to false, indicating that there
-     * were no errors during the deletion process. The 'message' key contains the message 'Record(s)
-     * deleted successfully.'.
-     */
     public function destroy_multiple(Request $request)
     {
         // Validate the incoming request

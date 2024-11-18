@@ -16,24 +16,11 @@ use Illuminate\Database\Migrations\Migrator;
 
 class UpdaterController extends Controller
 {
-    /**
-     * Display the system updater view.
-     * 
-     * This method returns the view for the system updater page located in the settings section.
-     * 
-     * @return \Illuminate\View\View The system updater view
-     */
     public function index()
     {
         return view('settings.system_updater');
     }
 
-    /**
-     * Check if directory is empty.
-     *
-     * @param string $dir The directory path to check
-     * @return bool|null Returns true if directory is empty, false if not empty, null if directory is not readable
-     */
     public function is_dir_empty($dir)
     {
         if (!is_readable($dir)) {
@@ -43,33 +30,6 @@ class UpdaterController extends Controller
         return (count(scandir($dir)) == 2);
     }
 
-    /**
-     * Handles system updates by processing uploaded ZIP files containing updates or plugins.
-     *
-     * This method performs the following operations:
-     * 1. Validates and processes the uploaded ZIP file
-     * 2. Extracts the contents to a temporary update directory
-     * 3. Verifies package.json for update/plugin information
-     * 4. Creates required folders specified in folders.json
-     * 5. Copies files according to files.json mapping
-     * 6. Extracts additional archives specified in archives.json
-     * 7. Runs database migrations if present
-     * 8. Executes manual SQL queries if specified
-     * 9. Updates system version and cleans up temporary files
-     *
-     * @param Request $request The HTTP request containing the update file
-     * @return \Illuminate\Http\JsonResponse JSON response indicating success/failure
-     *
-     * @throws \Exception When file operations or database updates fail
-     * 
-     * Expected package.json structure:
-     * - folders: Path to folders.json containing folder mapping
-     * - files: Path to files.json containing file mapping
-     * - archives: Path to archives.json containing archive mapping
-     * - version: Update version number
-     * - manual_queries: Boolean indicating if manual SQL queries should be run
-     * - query_path: Path to SQL query file
-     */
     function update(Request $request)
     {
         ini_set('max_execution_time', 900);

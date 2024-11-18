@@ -352,7 +352,7 @@ if (!function_exists('is_admin_or_leave_editor')) {
 if (!function_exists('get_php_date_format')) {
     function get_php_date_format()
     {
-        $general_settings = get_settings('general_settings');
+        // $general_settings = get_settings('');
         $date_format = $general_settings['date_format'] ?? 'DD-MM-YYYY|d-m-Y';
         $date_format = explode('|', $date_format);
         return $date_format[1];
@@ -586,7 +586,7 @@ if (!function_exists('getControllerNames')) {
             // Determine the appropriate separators based on the currency format
             $thousands_separator = ($currency_format == 'comma_separated') ? ',' : '.';
             // Format the amount with the determined separators
-            $formatted_amount = number_format((int)$amount, $decimal_points, '.', $thousands_separator);
+            $formatted_amount = number_format($amount, $decimal_points, '.', $thousands_separator);
             if ($is_currency_symbol) {
                 // Format currency symbol position
                 if ($currency_symbol_position === 'before') {

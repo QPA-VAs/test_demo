@@ -16,16 +16,6 @@ class PayslipsController extends Controller
 {
     protected $workspace;
     protected $user;
-    /**
-     * PayslipsController constructor.
-     * 
-     * Initializes the controller with middleware that:
-     * - Fetches the current workspace from the session
-     * - Gets the authenticated user
-     * 
-     * The middleware runs before any controller action and makes
-     * workspace and user data available throughout the class.
-     */
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -35,18 +25,6 @@ class PayslipsController extends Controller
             return $next($request);
         });
     }
-    /**
-     * Display a listing of payslips.
-     * 
-     * This method retrieves payslips based on user permissions:
-     * - For admin/all-data-access users: gets all workspace payslips
-     * - For regular users: gets only their own payslips
-     * 
-     * Also fetches workspace users and clients for the view.
-     *
-     * @param \Illuminate\Http\Request $request The incoming HTTP request
-     * @return \Illuminate\View\View Returns view with payslips count, users and clients
-     */
     public function index(Request $request)
     {
         $payslips = isAdminOrHasAllDataAccess() ? $this->workspace->payslips() : $this->user->payslips();
@@ -56,15 +34,6 @@ class PayslipsController extends Controller
         return view('payslips.list', ['payslips' => $payslips, 'users' => $users, 'clients' => $clients]);
     }
 
-    /**
-     * Show the form for creating a new payslip.
-     *
-     * This method retrieves users, payment methods, allowances and deductions
-     * from the current workspace and passes them to the payslip creation view.
-     *
-     * @param \Illuminate\Http\Request $request The HTTP request instance
-     * @return \Illuminate\View\View Returns the payslip creation view with required data
-     */
     public function create(Request $request)
     {
         $users = $this->workspace->users;
@@ -74,45 +43,6 @@ class PayslipsController extends Controller
         return view('payslips.create', ['users' => $users, 'payment_methods' => $payment_methods, 'allowances' => $allowances, 'deductions' => $deductions]);
     }
 
-    /**
-     * Store a newly created payslip in the database.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     * 
-     * @throws \Illuminate\Validation\ValidationException
-     * 
-     * This method handles the creation of a new payslip with the following steps:
-     * 1. Validates the incoming request data
-     * 2. Processes payment date if provided
-     * 3. Adds workspace ID and creator information
-     * 4. Creates the payslip record
-     * 5. Attaches allowances and deductions if any
-     * 
-     * The method expects the following required fields:
-     * - user_id: Employee ID
-     * - month: Payslip month
-     * - basic_salary: Base salary (numeric)
-     * - working_days: Total working days
-     * - lop_days: Loss of pay days
-     * - paid_days: Total paid days
-     * - bonus: Bonus amount (numeric)
-     * - incentives: Incentives amount (numeric)
-     * - leave_deduction: Leave deduction amount (numeric)
-     * - ot_hours: Overtime hours
-     * - ot_rate: Overtime rate (numeric)
-     * - ot_payment: Overtime payment (numeric)
-     * - total_allowance: Total allowances (numeric)
-     * - total_deductions: Total deductions (numeric)
-     * - total_earnings: Total earnings (numeric)
-     * - net_pay: Net payable amount (numeric)
-     * - status: Payslip status
-     * 
-     * Optional fields:
-     * - payment_method_id
-     * - payment_date
-     * - note
-     */
     public function store(Request $request)
     {
         $formFields = $request->validate([
@@ -159,32 +89,6 @@ class PayslipsController extends Controller
         }
     }
 
-    /**
-     * Lists and filters payslips based on various criteria
-     * 
-     * This method handles retrieving payslips with filtering, sorting, and pagination capabilities.
-     * It joins with users and payment_methods tables to get additional data.
-     * 
-     * @return \Illuminate\Http\JsonResponse JSON response containing:
-     *         - rows: Array of payslip records with formatted data
-     *         - total: Total count of records matching the filter criteria
-     * 
-     * @queryParam search string Optional. Search term to filter payslips by ID, note, or payment method
-     * @queryParam sort string Optional. Column name to sort by. Defaults to "id"
-     * @queryParam order string Optional. Sort order (ASC/DESC). Defaults to "DESC"
-     * @queryParam status string Optional. Filter by payment status
-     * @queryParam user_id string Optional. Filter by specific user
-     * @queryParam created_by string Optional. Filter by creator
-     * @queryParam month string Optional. Filter by specific month
-     * @queryParam limit integer Optional. Number of records per page for pagination
-     * 
-     * The response includes formatted data for:
-     * - Basic payslip information (ID, user, payment method)
-     * - Attendance details (working days, LOPs, paid days)
-     * - Salary components (basic salary, allowances, deductions)
-     * - Payment details (payment date, status)
-     * - Metadata (created by, timestamps)
-     */
     public function list()
     {
         $search = request('search');
@@ -283,17 +187,6 @@ class PayslipsController extends Controller
         ]);
     }
 
-    /**
-     * Display the form for editing a payslip.
-     *
-     * This method retrieves a payslip with its associated user name and payment method,
-     * gets the creator's information, and loads necessary data for the edit form including
-     * users, payment methods, allowances and deductions from the current workspace.
-     *
-     * @param \Illuminate\Http\Request $request The incoming request object
-     * @param int $id The ID of the payslip to edit
-     * @return \Illuminate\View\View Returns the edit view with payslip and related data
-     */
     public function edit(Request $request, $id)
     {
 
@@ -318,41 +211,6 @@ class PayslipsController extends Controller
         return view('payslips.update', ['payslip' => $payslip, 'users' => $users, 'payment_methods' => $payment_methods, 'allowances' => $allowances, 'deductions' => $deductions]);
     }
 
-    /**
-     * Update a payslip record in the database.
-     *
-     * This method validates the incoming request data, updates the payslip record,
-     * and syncs any associated allowances and deductions.
-     *
-     * @param \Illuminate\Http\Request $request The HTTP request containing payslip data
-     * @return \Illuminate\Http\JsonResponse JSON response with success/error status and payslip ID
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When payslip is not found
-     * 
-     * Expected request fields:
-     * - id: Required. The ID of the payslip to update
-     * - user_id: Required. The ID of the user this payslip belongs to
-     * - month: Required. The month for this payslip
-     * - basic_salary: Required, numeric. The base salary amount
-     * - working_days: Required. Number of working days
-     * - lop_days: Required. Loss of pay days
-     * - paid_days: Required. Number of paid days
-     * - bonus: Required, numeric. Bonus amount
-     * - incentives: Required, numeric. Incentives amount
-     * - leave_deduction: Required, numeric. Amount deducted for leaves
-     * - ot_hours: Required. Overtime hours
-     * - ot_rate: Required, numeric. Overtime rate per hour
-     * - ot_payment: Required, numeric. Total overtime payment
-     * - total_allowance: Required, numeric. Total allowances
-     * - total_deductions: Required, numeric. Total deductions
-     * - total_earnings: Required, numeric. Total earnings
-     * - net_pay: Required, numeric. Final net pay amount
-     * - payment_method_id: Optional. Payment method identifier
-     * - payment_date: Optional. Date of payment
-     * - status: Required. Payslip status
-     * - note: Optional. Additional notes
-     * - allowances: Optional. Array of allowance IDs
-     * - deductions: Optional. Array of deduction IDs
-     */
     public function update(Request $request)
     {
         $formFields = $request->validate([
@@ -410,22 +268,6 @@ class PayslipsController extends Controller
         return response()->json(['error' => false, 'id' => $payslip->id]);
     }
 
-    /**
-     * Display a detailed view of a specific payslip.
-     * 
-     * This method retrieves a payslip by ID along with related user and payment method information,
-     * processes the data for display, and returns the view with formatted data.
-     * 
-     * @param Request $request The HTTP request instance
-     * @param int $id The ID of the payslip to view
-     * @return \Illuminate\View\View Returns the payslip view with the processed payslip data
-     * 
-     * The method performs the following operations:
-     * - Retrieves payslip data with joined user and payment method information
-     * - Resolves and formats creator information
-     * - Formats date fields (month and payment date)
-     * - Formats payment status as HTML badge
-     */
     public function view(Request $request, $id)
     {
         $payslip = Payslip::select(
@@ -455,16 +297,6 @@ class PayslipsController extends Controller
     }
 
 
-    /**
-     * Remove the specified payslip from storage.
-     * 
-     * Detaches all allowances and deductions associated with the payslip
-     * before deleting the payslip record itself.
-     *
-     * @param  int  $id  The ID of the payslip to delete
-     * @return \Illuminate\Http\JsonResponse Returns JSON response indicating deletion status
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When payslip is not found
-     */
     public function destroy($id)
     {
         $payslip = Payslip::findOrFail($id);
@@ -474,22 +306,6 @@ class PayslipsController extends Controller
         return $response;
     }
 
-    /**
-     * Delete multiple payslips at once.
-     *
-     * This method handles the bulk deletion of payslips. It validates the incoming IDs,
-     * removes associated allowances and deductions relationships, and deletes the payslips
-     * using the DeletionService.
-     *
-     * @param \Illuminate\Http\Request $request The HTTP request containing payslip IDs to delete
-     * @return \Illuminate\Http\JsonResponse JSON response with:
-     *         - error: boolean indicating if operation failed
-     *         - message: success message
-     *         - id: array of deleted payslip IDs
-     *         - titles: array of deleted payslip titles with prefix
-     * @throws \Illuminate\Validation\ValidationException When validation fails
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When a payslip ID is not found
-     */
     public function destroy_multiple(Request $request)
     {
         // Validate the incoming request
@@ -517,20 +333,6 @@ class PayslipsController extends Controller
         return response()->json(['error' => false, 'message' => 'Payslip(s) deleted successfully.', 'id' => $deletedPayslips, 'titles' => $deletedPayslipTitles]);
     }
 
-    /**
-     * Duplicates a payslip record and its related data.
-     * 
-     * This method creates a copy of an existing payslip along with its associated
-     * deductions and allowances. It uses a general duplicateRecord function to handle
-     * the duplication process.
-     *
-     * @param int $id The ID of the payslip to duplicate
-     * @return \Illuminate\Http\JsonResponse Returns JSON response with:
-     *         - error: boolean indicating if operation failed
-     *         - message: status message
-     *         - id: original payslip ID (if successful)
-     * @throws \Exception When duplication process fails
-     */
     public function duplicate($id)
     {
         $relatedTables = ['deductions', 'allowances']; // Include related tables as needed

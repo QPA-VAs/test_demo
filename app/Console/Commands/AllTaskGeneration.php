@@ -97,23 +97,13 @@ class AllTaskGeneration extends Command
         Storage::put('backups/' . $fileName, $pdfContent);
 
         // Send the PDF as an email to the admin
-        $adminEmail = \App\Models\User::where('last_name', 'Bawuah')->value('email');
+        $adminEmail = \App\Models\User::where('last_name', 'pepos')->value('email');
 
         Mail::send([], [], function ($message) use ($adminEmail, $fileName) {
             $message->to($adminEmail)
                 ->subject('Weekly Task Report')
-                ->from('info@qpas.co.uk', 'Bawuah')
                 ->attach(storage_path('app/backups/' . $fileName))
                 ->html('Please find attached the backup weekly task report.'); // Set the body text as HTML
-
-        });
-        Mail::send([], [], function ($message) use ($adminEmail, $fileName) {
-            $message->to("amoahanthony41@gmail.com")
-                ->subject('Weekly Task Report')
-                ->from('info@qpas.co.uk', 'Bawuah')
-                ->attach(storage_path('app/backups/' . $fileName))
-                ->html('Please find attached the backup weekly task report.'); // Set the body text as HTML
-
         });
 
     }

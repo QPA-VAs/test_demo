@@ -11,6 +11,9 @@ use App\Models\Workspace;
 use Illuminate\Http\Request;
 use App\Services\DeletionService;
 use GuzzleHttp\Promise\TaskQueue;
+
+use Illuminate\Support\Facades\Hash;
+
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
@@ -115,15 +118,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Show email verification notice for unverified users.
-     * 
-     * This method checks if the authenticated user has verified their email address.
-     * If the email is not verified, it displays the verification notice view.
-     * If the email is already verified, redirects to the home page.
-     * 
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
-     */
     public function email_verification()
     {
         $user = getAuthenticatedUser();
@@ -134,16 +128,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Resends the email verification link to the authenticated user.
-     * 
-     * This method checks if email is configured in the system before attempting to send
-     * the verification link. If email is configured, sends a new verification notification
-     * to the authenticated user's email address.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function resend_verification_link(Request $request)
     {
         if (isEmailConfigured()) {
@@ -165,11 +149,10 @@ class UserController extends Controller
 
 
     /**
-     * Show the form for editing a user.
+     * Show the form for editing the specified resource.
      *
-     * @param  int  $id  The ID of the user to edit
-     * @return \Illuminate\View\View Returns the edit user view with user and roles data
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When user is not found
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
      */
 
     public function edit_user($id)
@@ -179,27 +162,6 @@ class UserController extends Controller
         return view('users.edit_user', ['user' => $user, 'roles' => $roles]);
     }
 
-    /**
-     * Update user profile details and role
-     *
-     * @param \Illuminate\Http\Request $request The HTTP request object containing form data
-     * @param int $id The ID of the user to update
-     * @return \Illuminate\Http\JsonResponse JSON response with error status and user ID
-     *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When user not found
-     * @throws \Illuminate\Validation\ValidationException When validation fails
-     *
-     * Validates and updates user profile information including:
-     * - Personal details (name, contact info, address)
-     * - Dates (DOB, date of joining)
-     * - Profile photo (optional)
-     * - User status (if admin)
-     * - User role
-     *
-     * Profile photo is stored in public storage.
-     * Old photo is deleted when new one is uploaded.
-     * Sets flash message on successful update.
-     */
     public function update_user(Request $request, $id)
     {
 
@@ -237,17 +199,6 @@ class UserController extends Controller
         return response()->json(['error' => false, 'id' => $user->id]);
     }
 
-    /**
-     * Update user's profile photo.
-     *
-     * @param  \Illuminate\Http\Request  $request  The incoming HTTP request
-     * @param  int  $id  The ID of the user to update
-     * @return \Illuminate\Http\RedirectResponse  Redirects back with success or error message
-     *
-     * This method handles the upload and storage of a user's profile photo.
-     * If an existing photo exists (not the default 'no-image.jpg'), it will be deleted.
-     * The new photo is stored in the 'public/photos' directory.
-     */
     public function update_photo(Request $request, $id)
     {
         if ($request->hasFile('upload')) {
@@ -262,13 +213,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Delete a user and their associated todos.
-     *
-     * @param int $id The ID of the user to delete
-     * @return \Illuminate\Http\JsonResponse Returns the deletion response
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When user is not found
-     */
     public function delete_user($id)
     {
         $user = User::findOrFail($id);
@@ -277,21 +221,6 @@ class UserController extends Controller
         return $response;
     }
 
-    /**
-     * Delete multiple users from the system.
-     *
-     * This method handles bulk deletion of users. It validates the incoming request
-     * for user IDs, checks their existence, and performs the deletion operation
-     * including associated todos.
-     *
-     * @param \Illuminate\Http\Request $request The request containing array of user IDs
-     * @throws \Illuminate\Validation\ValidationException When validation fails
-     * @return \Illuminate\Http\JsonResponse JSON response with:
-     *         - error: boolean indicating if operation failed
-     *         - message: status message
-     *         - id: array of deleted user IDs
-     *         - titles: array of deleted user names
-     */
     public function delete_multiple_user(Request $request)
     {
         // Validate the incoming request
@@ -316,19 +245,6 @@ class UserController extends Controller
         return response()->json(['error' => false, 'message' => 'User(s) deleted successfully.', 'id' => $deletedUsers, 'titles' => $deletedUserNames]);
     }
 
-    /**
-     * Logs out the currently authenticated user.
-     *
-     * This method handles logout for both web and client guards.
-     * It performs the following actions:
-     * - Logs out the user from their respective guard (web or client)
-     * - Invalidates the current session
-     * - Regenerates the CSRF token
-     * - Redirects to home page with success message
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function logout(Request $request)
     {
         if (Auth::guard('web')->check()) {
@@ -343,36 +259,11 @@ class UserController extends Controller
         return redirect('/')->with('message', 'Logged out successfully.');
     }
 
-    /**
-     * Display the login page view.
-     * 
-     * This method returns the login form view located in the auth directory.
-     * 
-     * @return \Illuminate\View\View
-     */
     public function login()
     {
         return view('auth.login');
     }
 
-    /**
-     * Authenticate user login attempt
-     * 
-     * Validates and authenticates user/client login credentials. Checks account status
-     * and sets up session data on successful login.
-     *
-     * @param \Illuminate\Http\Request $request The HTTP request object containing login credentials
-     * @return \Illuminate\Http\JsonResponse JSON response indicating authentication result
-     *     - On success: {"error": false}
-     *     - On failure: {"error": true, "message": "error message"}
-     *
-     * @throws \Illuminate\Validation\ValidationException When validation fails
-     *
-     * Possible error messages:
-     * - "Account not found!" - When email doesn't exist
-     * - "Your account is currently inactive..." - When account is not active
-     * - "Invalid credentials!" - When password doesn't match
-     */
     public function authenticate(Request $request)
     {
         $formFields = $request->validate([
@@ -382,6 +273,7 @@ class UserController extends Controller
         if (!User::where('email', $formFields['email'])->first() && !Client::where('email', $formFields['email'])->first()) {
             return response()->json(['error' => true, 'message' => 'Account not found!']);
         }
+
         $logged_in = false;
         if (auth('web')->attempt($formFields)) {
             $user = auth('web')->user();
@@ -414,23 +306,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Display the user profile page with related data.
-     *
-     * This method retrieves user information along with associated workspace data,
-     * including projects, tasks count, users and clients. The data shown varies
-     * based on user permissions (admin/all data access).
-     *
-     * @param int $id The ID of the user to display
-     * @return \Illuminate\View\View Returns the user profile view with:
-     *                               - user: The requested user model
-     *                               - projects: Collection of projects (filtered by permissions)
-     *                               - tasks: Count of tasks (filtered by permissions)
-     *                               - users: Collection of workspace users
-     *                               - clients: Collection of workspace clients
-     *                               - auth_user: Currently authenticated user
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When user is not found
-     */
     public function show($id)
     {
         $user = User::findOrFail($id);
@@ -443,37 +318,11 @@ class UserController extends Controller
         return view('users.user_profile', ['user' => $user, 'projects' => $projects, 'tasks' => $tasks, 'users' => $users, 'clients' => $clients, 'auth_user' => getAuthenticatedUser()]);
     }
     
-        /**
-         * Formats a time duration from seconds into HH:MM:SS format.
-         *
-         * @param int $seconds The number of seconds to format
-         * @return string The formatted time string in HH:MM:SS format
-         */
         public function format_time($seconds)
     {
         return sprintf("%02d%s%02d%s%02d", floor($seconds / 3600), ':', ($seconds / 60) % 60, ':', $seconds % 60);
     }
 
-    /**
-     * Retrieves and formats a list of users for the current workspace.
-     * 
-     * This method handles the following functionalities:
-     * - Retrieves users based on the current workspace
-     * - Implements search functionality across user fields (first_name, last_name, phone, email)
-     * - Supports sorting and ordering of results
-     * - Paginates results based on requested limit
-     * - Formats user data including:
-     *   - Basic user information
-     *   - Role with styled badge
-     *   - Avatar/photo display
-     *   - Task and project counts
-     *   - Status and timestamps
-     *   - Time spent on tasks
-     *
-     * @return \Illuminate\Http\JsonResponse JSON response containing:
-     *         - rows: Array of formatted user data
-     *         - total: Total count of users matching criteria
-     */
     public function list()
     {
         $workspace = Workspace::find(session()->get('workspace_id'));

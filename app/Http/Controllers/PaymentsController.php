@@ -17,16 +17,6 @@ class PaymentsController extends Controller
 {
     protected $workspace;
     protected $user;
-    /**
-     * Constructor for PaymentsController
-     * 
-     * Initializes middleware that:
-     * - Gets the current workspace from session
-     * - Gets authenticated user
-     * - Sets these as class properties for use across controller methods
-     * 
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -36,18 +26,6 @@ class PaymentsController extends Controller
             return $next($request);
         });
     }
-    /**
-     * Display a listing of payments.
-     *
-     * This method retrieves various payment-related data for the current workspace:
-     * - Total count of payments
-     * - Available payment methods
-     * - All invoices
-     * - Workspace users
-     * 
-     * @param \Illuminate\Http\Request $request The incoming HTTP request
-     * @return \Illuminate\View\View Returns the payments list view with payment data
-     */
     public function index(Request $request)
     {
         $payments = $this->workspace->payments();
@@ -57,36 +35,12 @@ class PaymentsController extends Controller
         $users = $this->workspace->users;
         return view('payments.list', ['payments' => $payments, 'payment_methods' => $payment_methods, 'invoices' => $invoices, 'users' => $users]);
     }
-    /**
-     * Display a view with the count of expense types in the workspace.
-     * 
-     * This method retrieves the expense types associated with the current workspace,
-     * counts them, and passes the count to the expense_types view.
-     *
-     * @param \Illuminate\Http\Request $request The incoming HTTP request
-     * @return \Illuminate\View\View Returns a view with the count of expense types
-     */
     public function expense_types(Request $request)
     {
         $expense_types = $this->workspace->expense_types();
         $expense_types = $expense_types->count();
         return view('expenses.expense_types', ['expense_types' => $expense_types]);
     }
-    /**
-     * Store a new payment record in the database.
-     * 
-     * This method handles the creation of a new payment record with validation of input data.
-     * It checks if the total paid amount doesn't exceed the total invoice amount when an invoice is specified.
-     * The payment date is formatted according to the Y-m-d format.
-     * The workspace_id is automatically set based on the current workspace.
-     * The created_by field is set based on whether the user is a client or regular user.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     * 
-     * @throws \Illuminate\Validation\ValidationException When validation fails
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When invoice_id is invalid
-     */
     public function store(Request $request)
     {
         // Validate the request data
@@ -119,43 +73,6 @@ class PaymentsController extends Controller
         }
     }
 
-    /**
-     * List and filter payments with pagination
-     * 
-     * Retrieves a paginated list of payments with optional filtering and sorting capabilities.
-     * Joins payment data with related user, invoice and payment method information.
-     * Applies workspace and user access restrictions based on authentication.
-     * 
-     * @return \Illuminate\Http\JsonResponse JSON response containing:
-     *         - rows: Array of payment records with formatted data
-     *         - total: Total count of filtered records
-     * 
-     * Request parameters:
-     * @param string|null $search Search term for filtering by ID, amount or note
-     * @param string $sort Column name to sort by (default: "id")
-     * @param string $order Sort direction - "ASC" or "DESC" (default: "DESC")
-     * @param int|null $user_id Filter by user ID
-     * @param int|null $invoice_id Filter by invoice ID
-     * @param int|null $pm_id Filter by payment method ID
-     * @param string|null $date_from Start date for payment date range filter
-     * @param string|null $date_to End date for payment date range filter
-     * @param int $limit Number of records per page
-     * 
-     * Response format per payment:
-     * - id: Payment ID
-     * - user_id: User ID
-     * - user: User full name
-     * - invoice_id: Invoice ID
-     * - invoice: Formatted invoice link or dash
-     * - payment_method_id: Payment method ID
-     * - payment_method: Payment method title
-     * - amount: Formatted currency amount
-     * - payment_date: Formatted payment date
-     * - note: Payment note
-     * - created_by: Creator's full name
-     * - created_at: Formatted creation time
-     * - updated_at: Formatted update time
-     */
     public function list()
     {
         $search = request('search');
@@ -248,36 +165,12 @@ class PaymentsController extends Controller
         ]);
     }
 
-    /**
-     * Retrieve a specific payment by ID
-     * 
-     * @param int $id The ID of the payment to retrieve
-     * @return \Illuminate\Http\JsonResponse A JSON response containing the payment data
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When payment is not found
-     */
     public function get($id)
     {
         $payment = Payment::findOrFail($id);
         return response()->json(['payment' => $payment]);
     }
 
-    /**
-     * Update the specified payment in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     *
-     * This method handles updating an existing payment record with the following steps:
-     * 1. Validates incoming request data including payment ID, user ID, invoice ID, payment method,
-     *    amount, payment date and note
-     * 2. Formats the payment date to Y-m-d format
-     * 3. If invoice_id is provided, checks if total paid amount (excluding current payment) 
-     *    plus new amount exceeds total invoice amount
-     * 4. Updates the payment record and returns success/error response
-     * 
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When payment not found
-     * @throws \Illuminate\Validation\ValidationException When validation fails
-     */
     public function update(Request $request)
     {
         // Validate the request data
@@ -312,35 +205,12 @@ class PaymentsController extends Controller
         }
     }
 
-    /**
-     * Remove the specified payment from storage.
-     *
-     * @param  int  $id The ID of the payment to delete
-     * @return \Illuminate\Http\JsonResponse A JSON response indicating the success/failure of deletion
-     */
     public function destroy($id)
     {
         DeletionService::delete(Payment::class, $id, 'Payment');
         return response()->json(['error' => false, 'message' => 'Payment deleted successfully.', 'id' => $id]);
     }
 
-    /**
-     * Delete multiple payments from the system.
-     *
-     * @param \Illuminate\Http\Request $request Request containing array of payment IDs to delete
-     * @return \Illuminate\Http\JsonResponse Json response with deletion status and details
-     *
-     * @throws \Illuminate\Validation\ValidationException When validation fails
-     *
-     * The method expects a request with:
-     * - ids: Array of payment IDs to be deleted
-     *
-     * Returns JSON response with:
-     * - error: Boolean indicating if operation failed
-     * - message: Success/failure message
-     * - id: Array of deleted payment IDs
-     * - titles: Array of deleted payment titles
-     */
     public function destroy_multiple(Request $request)
     {
         // Validate the incoming request

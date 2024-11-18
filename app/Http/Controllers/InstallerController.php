@@ -15,34 +15,8 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Session;
 
-/**
- * InstallerController handles the installation process of the application.
- * 
- * This controller manages database configuration, user setup, and initial workspace creation.
- * It includes functionality for:
- * - Checking and creating storage symbolic links
- * - Clearing application caches
- * - Configuring database connection
- * - Installing the application with initial data
- * - Creating the first admin user
- * - Setting up the default workspace
- * 
- * @package App\Http\Controllers
- */
 class InstallerController extends Controller
 {
-    /**
-     * Handles the installation process for the application.
-     * 
-     * This method checks if the installation view exists and attempts to:
-     * 1. Create a symbolic link between public and storage directories if symlink function is available
-     * 2. Clear application cache and return to installation view
-     * 
-     * If the installation view doesn't exist, redirects to home page.
-     *
-     * @return \Illuminate\Http\Response Returns either the install view or redirects to home
-     * @throws \Exception May throw exceptions during symlink creation (caught internally)
-     */
     public function index()
     {
         $installViewPath = resource_path('views/install.blade.php');
@@ -63,17 +37,6 @@ class InstallerController extends Controller
         }
     }
 
-    /**
-     * Clears application caches and returns to the installation view.
-     * 
-     * This method performs the following cache clearing operations:
-     * - Clears the application cache
-     * - Clears the configuration cache
-     * - Clears the route cache
-     * - Clears the view cache
-     * 
-     * @return \Illuminate\View\View Returns the installation view
-     */
     private function clearAndReturnToInstallView()
     {
         // Clear cache
@@ -86,24 +49,6 @@ class InstallerController extends Controller
         return view('install');
     }
 
-    /**
-     * Configure and test database connection with provided credentials
-     * 
-     * This method validates database connection credentials, tests the connection,
-     * and updates the .env file with the new database configuration if successful.
-     *
-     * @param  \Illuminate\Http\Request  $request Request containing database credentials
-     * @return \Illuminate\Http\JsonResponse Json response with connection status
-     * 
-     * @throws \PDOException When database connection fails
-     * 
-     * Required request parameters:
-     * - db_name: Database name
-     * - db_host_name: Database host
-     * - db_user_name: Database username
-     * Optional request parameters:
-     * - db_password: Database password
-     */
     public function config_db(Request $request)
     {
         $formFields = $request->validate([
@@ -132,27 +77,6 @@ class InstallerController extends Controller
         }
     }
 
-    /**
-     * Handles the installation process of the application.
-     *
-     * This method performs the following steps:
-     * 1. Sets maximum execution time to 900 seconds
-     * 2. Validates user input fields (first name, last name, email, password)
-     * 3. Creates a new user with administrative privileges
-     * 4. Creates a default workspace for the user
-     * 5. Imports database schema from SQL dump file
-     * 6. Cleans up installation files
-     * 7. Clears various Laravel caches
-     *
-     * @param \Illuminate\Http\Request $request The HTTP request containing user details
-     * @return \Illuminate\Http\JsonResponse Returns JSON response indicating success or failure
-     *   - On success: {'error': false, 'message': 'Congratulations! Installation completed successfully.'}
-     *   - On failure: {'error': true, 'message': 'Oops! Installation failed. Please try again.'}
-     *   - If SQL file missing: {'error': true, 'message': 'Oops! Installation couldn\'t process.'}
-     *
-     * @throws \Illuminate\Validation\ValidationException When validation fails
-     * @throws \Exception When database operations fail
-     */
     public function install(Request $request)
     {
         ini_set('max_execution_time', 900);

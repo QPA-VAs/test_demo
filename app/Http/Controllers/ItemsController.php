@@ -10,29 +10,10 @@ use App\Models\Item;
 use Illuminate\Support\Facades\Session;
 use App\Services\DeletionService;
 
-/**
- * Controller class for managing item-related operations.
- * 
- * This controller handles CRUD operations and other functionalities
- * related to items in the Taskify application.
- * 
- * @package App\Http\Controllers
- */
 class ItemsController extends Controller
 {
     protected $workspace;
     protected $user;
-    /**
-     * Constructor for ItemsController.
-     * Applies middleware to handle workspace and user authentication.
-     * 
-     * This constructor sets up middleware that:
-     * - Retrieves the current workspace from session
-     * - Gets the authenticated user
-     * - Makes these values available throughout the controller
-     * 
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -43,15 +24,6 @@ class ItemsController extends Controller
         });
     }
 
-    /**
-     * Display a listing of items.
-     * 
-     * This method retrieves the count of items and units from the current workspace
-     * and returns them to the items list view.
-     *
-     * @param \Illuminate\Http\Request $request The incoming HTTP request
-     * @return \Illuminate\View\View Returns view with items count and units data
-     */
     public function index(Request $request)
     {
         $items = $this->workspace->items();
@@ -60,20 +32,6 @@ class ItemsController extends Controller
         return view('items.list', ['items' => $items, 'units' => $units]);
     }
 
-    /**
-     * Store a newly created item in storage.
-     *
-     * This method validates the incoming request data and creates a new item
-     * in the database with the given workspace ID.
-     *
-     * @param \Illuminate\Http\Request $request The HTTP request containing item data
-     * 
-     * @return \Illuminate\Http\JsonResponse Returns JSON response with:
-     *         - On success: error => false, message => success message, id => new item ID
-     *         - On failure: error => true, message => error message
-     * 
-     * @throws \Illuminate\Validation\ValidationException When validation fails
-     */
     public function store(Request $request)
     {
         // Validate the request data
@@ -94,30 +52,6 @@ class ItemsController extends Controller
         }
     }
 
-    /**
-     * Retrieves a paginated list of items with optional filtering and sorting.
-     *
-     * @return \Illuminate\Http\JsonResponse JSON response containing:
-     *         - rows: Array of items with formatted data
-     *         - total: Total number of items matching the criteria
-     *
-     * Query parameters:
-     * @param string|null $search Search term to filter items by title, description, price, unit_id or id
-     * @param string $sort Field to sort by (defaults to "id")
-     * @param string $order Sort direction ("ASC" or "DESC", defaults to "DESC")
-     * @param int|null $unit_id Filter items by specific unit_id
-     * @param int $limit Number of items per page
-     *
-     * Each item in response contains:
-     * - id: Item ID
-     * - unit_id: Unit ID
-     * - unit: Unit title
-     * - title: Item title
-     * - price: Formatted price
-     * - description: Item description
-     * - created_at: Formatted creation timestamp
-     * - updated_at: Formatted update timestamp
-     */
     public function list()
     {
         $search = request('search');
@@ -167,34 +101,12 @@ class ItemsController extends Controller
 
 
 
-    /**
-     * Retrieve a specific item by its ID.
-     *
-     * @param int $id The ID of the item to retrieve
-     * @return \Illuminate\Http\JsonResponse JSON response containing the item
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When item is not found
-     */
     public function get($id)
     {
         $item = Item::findOrFail($id);
         return response()->json(['item' => $item]);
     }
 
-    /**
-     * Update the specified item in the database.
-     *
-     * @param  \Illuminate\Http\Request  $request  The HTTP request containing item data
-     * @return \Illuminate\Http\JsonResponse
-     * 
-     * The method validates and updates an existing item with the following fields:
-     * - title (required, must be unique)
-     * - price (required, must be a valid decimal number)
-     * - unit_id (optional)
-     * - description (optional)
-     * 
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException When item is not found
-     * @throws \Illuminate\Validation\ValidationException When validation fails
-     */
     public function update(Request $request)
     {
         // Validate the request data
@@ -216,38 +128,11 @@ class ItemsController extends Controller
         }
     }
 
-    /**
-     * Delete a specified item from storage.
-     *
-     * @param  int  $id
-     * The ID of the item to delete
-     * 
-     * @return \Illuminate\Http\Response
-     * Returns the response from DeletionService containing status and message
-     */
     public function destroy($id)
     {
         $response = DeletionService::delete(Item::class, $id, 'Item');
         return $response;
     }
-    /**
-     * Delete multiple items from the database.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
-     * 
-     * Expects a request with:
-     * - ids: array of item IDs to be deleted
-     * 
-     * Returns JSON response with:
-     * - error: boolean indicating operation success
-     * - message: success message
-     * - id: array of deleted item IDs
-     * - titles: array of deleted item titles
-     */
     public function destroy_multiple(Request $request)
     {
         // Validate the incoming request
